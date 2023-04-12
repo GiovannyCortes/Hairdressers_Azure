@@ -1,0 +1,54 @@
+﻿.background_base {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.bkg_001 { /* Fondo 'patrón principal' (patrón repetido) */
+    background-color: var(--main-blue);
+    background-image: url("../../images/patrones/PatronTres.png");
+    background-size: 100px;
+}
+
+.bkg_002 { /* Fondo 'acceso denegado, rojo' (color liso) */
+    background-color: var(--main-red);
+}
+
+.bkg_003 { /* Fondo 'en construcción' (imagen centrada) */
+    background-color: rgb(120, 120, 120);
+    background-image: url("../../images/pictures/construction.png");
+    background-repeat: no-repeat;
+    background-size: 25vw;
+    background-position-x: 50%;
+    background-position-y: 42%;
+}
+
+@media screen and (orientation: landscape) and (max-width: 1300px) {
+    #bkg_video {
+        position: absolute;
+        left: 0;
+        bottom: 50%;
+        transform: translateY(42%);
+        min-height: 100vh;
+        min-width: 100vw;
+        z-index: -1;
+        -webkit-filter: opacity(0.5);
+        filter: opacity(0.5);
+    }
+}
+
+@media screen and (orientation: landscape) and (min-width: 1300px) {
+    #bkg_video {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        min-height: 100vh;
+        min-width: 100vw;
+        z-index: -1;
+        -webkit-filter: opacity(0.5);
+        filter: opacity(0.5);
+    }
+}

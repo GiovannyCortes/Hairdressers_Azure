@@ -1,0 +1,79 @@
+﻿@model User
+
+@{
+    ViewData["Title"] = "C&G: Panel de Control";
+    List<Hairdresser>? peluquerias = ViewData["HAIRDRESSERS"] as List<Hairdresser>;
+}
+
+<div class="background_base bkg_001"></div>
+<div class="mauto">
+    <h1 class="title_form">@Model.Name @Model.LastName</h1>
+    <div class="container_box">
+        <div class="cb_section_1">
+            <div></div>
+            <p>@Model.Email
+                @if (Model.EmailConfirmed) {
+                    <abbr title="Email verificado" style="cursor: pointer;">
+                        <i class="fa fa-check" style="color: green;"></i>
+                    </abbr>
+                } else {
+                    <abbr title="Email no verificado" style="cursor: pointer;" onclick="executeValidate()">
+                        <i class="fa fa-xmark" style="color: orange;"></i>
+                    </abbr>
+                }
+            </p>
+            <p>@Model.Phone</p>
+            <a asp-controller="User" asp-action="UpdateUser">
+                Editar
+            </a>
+            <div></div>
+        </div>
+            <div class="cb_section_2" >
+                @if (peluquerias != null) {
+                    @foreach (Hairdresser h in peluquerias) {
+                        <a asp-controller="Hairdresser" asp-action="ControlPanel" asp-route-hid="@h.HairdresserId" class="card card_view">
+                            <h3>@h.Name</h3>
+                            <p>@h.Address</p>
+                            <p>@h.Phone</p>
+                        </a>
+                    }
+                }
+                <a asp-controller="Hairdresser" asp-action="CreateHairdresser" class="card card_create">
+                    Añadir nueva peluquería
+                </a>
+            </div>
+    </div>
+</div>
+
+@section user_script{
+    <script>
+        function executeValidate() {
+            Swal.fire({
+                title: "¿Desea validar su email ahora?",
+                text: "Se enviará un email con el botón de confirmación a la cuenta de correo registrada",
+                icon: 'question',
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, enviar correo'
+            }).then((result) => {
+                if (result.isConfirmed === true) {
+                    $.post("/User/SendValidateEmail", function (data) {
+                        Swal.fire({
+                            title: "Correo enviado",
+                            text: "Revise su bandeja de entrada y siga las instrucciones",
+                            icon: "success",
+                            timer: 2500,
+                            position: 'bottom-end',
+                            confirmButtonText: 'De acuerdo',
+                            confirmButtonColor: '#3085d6'
+                        }).then((second_result) => {
+                            $.get("/Managed/LogOut");
+                            window.location.reload();
+                        });
+                    });
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+
+    @* ======== ESTILOS COMUNES EN LA APLICACIÓN ======== *@
+    <link rel="stylesheet" href="~/css/common_styles/backgrounds.css" />
+    <link rel="stylesheet" href="~/css/common_styles/colors.css" />
+    <link rel="stylesheet" href="~/css/common_styles/common.css" />
+    <link rel="stylesheet" href="~/css/common_styles/fonts.css" />
+    @* ================================================== *@
+
+    @* =============== ESTILOS DEL LAYOUT =============== *@
+    <link rel="stylesheet" href="~/css/layout_styles/header.css" />
+    <link rel="stylesheet" href="~/css/layout_styles/footer.css" />
+    @* ================================================== *@
+    
+    @* ============== ESTILOS DE LAS VISTAS ============= *@
+    <link rel="stylesheet" href="~/css/landing.css" />
+    <link rel="stylesheet" href="~/css/login.css" />
+    <link rel="stylesheet" href="~/css/hairdresser.css" />
+    <link rel="stylesheet" href="~/css/user_admin.css" />
+    <link rel="stylesheet" href="~/css/services.css" />
+    <link rel="stylesheet" href="~/css/suggestions.css" />
+    @* ================================================== *@
+
+    @* ========== ESTILOS DE LOS HTML GENERADOS ========= *@
+    <link rel="stylesheet" href="~/css/calendarSwal.css" />
+    @* ================================================== *@
+
+    @* ============================================= ICONOS ============================================ *@
+    <link rel="icon" type="image/x-icon" href="~/images/logos/Barber_logo_small_white.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+
+    <script src="~/js/jquery-3.6.3.min.js"></script>
+    <script src="~/js/index.global.min.js"></script>
+</head>
+<body>
+    <header>
+        <div id="navbar_container" class="shadow">
+            <div id="navbar_container_logo">
+                <img id="navbar_logo" src="~/images/logos/Barber_logo_medium_transparent.png"/>
+            </div>
+            <div id="navbar_container_buttons">
+                <ul class="navbar_list rel_center">
+                    <partial name="_MenuNavLink" />
+                </ul>
+            </div>
+            <div id="navbar_container_login">
+                <ul class="navbar_list rel_center">
+                    <li>
+                        <button id="navbar_user" class="navbar_list_item">
+                            <img src="~/images/icons/user.png" style="height: 100%;"/>
+                        </button>
+                        <ul id="navbar_float">
+                            <partial name="_MenuLogin" />
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    @RenderBody()
+
+    <footer class="footer">
+        <div class="footer__addr">
+            <h1 class="footer__logo">Cut&Go S.A.</h1>
+            <h2>Contáctanos</h2>
+            <address>
+                C. de Pío Felipe, 12, 28038 Madrid<br>
+                cutandgo.app@gmail.com<br>
+                <a class="footer__btn" href="mailto:cutandgo.app@gmail.com">Enviar email</a>
+            </address>
+        </div>
+
+        <ul class="footer__nav">
+            <li class="nav__item">
+                <h2 class="nav__title">Clientes</h2>
+                <ul class="nav__ul">
+                    <li><a asp-controller="User" asp-action="ControlPanel">Panel de control</a></li>
+                    <li><a asp-controller="Appointments" asp-action="Appointments">Mis citas</a></li>
+                </ul>
+            </li>
+            <li class="nav__item">
+                <h2 class="nav__title">Legal</h2>
+                <ul class="nav__ul">
+                    <li><a asp-controller="Landing" asp-action="PrivatePolicy">Política de privacidad</a></li>
+                    <li><a asp-controller="Landing" asp-action="UseTerms">Términos de uso</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="legal">
+            <p>&copy; 2023 Cut&Go. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    @if (IsSectionDefined("user_script")) { @RenderSection("user_script", false) }
+    @if (IsSectionDefined("registrer_script")) { @RenderSection("registrer_script", false) }
+    @if (IsSectionDefined("login_script")) { @RenderSection("login_script", false) }
+    @if (IsSectionDefined("hairdresser_script")) { @RenderSection("hairdresser_script", false) }
+    @if (IsSectionDefined("createhairdresser_script")) { @RenderSection("createhairdresser_script", false) }
+    @if (IsSectionDefined("updateSchedule_script")) { @RenderSection("updateSchedule_script", false) }
+    @if (IsSectionDefined("calendar_script")) { @RenderSection("calendar_script", false) }
+    @if (IsSectionDefined("search_script")) { @RenderSection("search_script", false) }
+    @if (IsSectionDefined("service_script")) { @RenderSection("service_script", false) }
+    
+    <script>
+        $(document).ready(function() {
+            $("#navbar_float").hide();
+
+            $("#navbar_user").click(function() {
+                  $("#navbar_float").slideToggle();
+            });
+
+            $(document).click(function (event) {
+                if (!$(event.target).closest("#navbar_user").length) {
+                    $("#navbar_float").slideUp();
+                }
+            });
+        });
+    </script>
+    <script src="~/js/sweetalert2.all.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+﻿@model Hairdresser
+
+@{
+    ViewData["Title"] = "C&G: Panel de control";
+    List<Schedule>? schedules = ViewData["SCHEDULES"] as List<Schedule>;
+    string phone_info = (Model.Phone == "") ? "Sin número de telefono" : Model.Phone;
+}
+
+<div class="background_base bkg_001"></div>
+<div class="mauto">
+    <h1 class="title_form data">@Model.Name</h1>
+    <h1 class="title_form data hide">Editar Peluquería</h1>
+    <div class="container_box data">
+        <a asp-controller="Appointments" asp-action="Appointments" asp-route-hairdresserId="@Model.HairdresserId" class="btn_appointments">Gestionar Citas</a>
+        <a asp-controller="Hairdresser" asp-action="Services" asp-route-hairdresserId="@Model.HairdresserId" asp-route-hairdresserName="@Model.Name" class="btn_services">
+            Gestionar Servicios
+        </a>
+        <div class="btn_container_actions">
+            <button class="btn_update btn_showers">Editar peluquería</button>
+            <button id="btn_delete" class="btn_danger">Eliminar peluquería</button>
+        </div>
+        <div>
+            <p>@Model.Address</p>
+            <p>@phone_info</p>
+        </div>
+        @if (schedules != null) {
+            <div class="cb_section_2" >
+                @foreach (Schedule sche in schedules) {
+                    <div class="schedule_item">
+                        <a asp-controller="Hairdresser" asp-action="UpdateSchedule" asp-route-hairdresser_id="@Model.HairdresserId" asp-route-schedule_id="@sche.ScheduleId">
+                            @sche.Name
+                        </a>
+                        @Html.Raw(GetScheduleHtml(sche.ScheduleRows.ToList()))
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <div class="container_box data hide">
+        <form method="post" action="UpdateHairdresser" style="margin-top: 10px;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="HairdresserId" value="@Model.HairdresserId" />
+            <input type="text" name="Name" id="h_name" class="form-control" maxlength="60" placeholder="Nombre" value="@Model.Name" />
+            <div class="form_div_flex">
+                <input type="text" id="h_address" name="Address" class="form-control" maxlength="100" placeholder="Dirección" value="@Model.Address" />
+                <input type="text" id="h_postalCode" name="PostalCode" class="form-control" maxlength="5" placeholder="Código Postal" value="@Model.PostalCode" />
+            </div>
+            <input type="text" id="h_phone" name="Phone" class="form-control" maxlength="20" placeholder="Teléfono" value="@Model.Phone" />
+            <div class="btn_container_submit_cancel">
+                <span></span>
+                <span></span>
+                <button class="form-button form-button-create">
+                    Guardar cambios
+                </button>
+                <span></span>
+                <div style="width: 100%;">
+                    <button type="button" class="form-button form-button-cancel btn_showers">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section hairdresser_script{
+    <script>
+        var edit_mode = false;
+        $(function() {
+            $('.btn_showers').click(function() {
+                edit_mode = !edit_mode;
+                if (edit_mode == false) { // Si pulso cancelar
+                    $("#h_name").val("@Html.Raw(Model.Name)");
+                    $("#h_address").val("@Html.Raw(Model.Address)");
+                    $("#h_postalCode").val("@Html.Raw(Model.PostalCode)");
+                    $("#h_phone").val("@Html.Raw(Model.Phone)");
+                }
+                $('.data').toggleClass('hide');
+            });
+        });
+
+        $(function () {
+            $('#btn_delete').click(function () {
+                Swal.fire({
+                    title: "¿Está segur@@ de que desea eliminar esta peluquería?",
+                    text: "Esta acción no podrá revertirse",
+                    icon: "warning",
+                    confirmButtonText: "Sí, eliminar",
+                    confirmButtonColor: "#cb0000",
+                    showCancelButton: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post("/Hairdresser/DeleteHairdresser", { hairdresser_id: @Model.HairdresserId }, function (url_Redirect) { 
+                            window.location.replace(url_Redirect); // Replace bloqueará la acción de volver atrás
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@functions {
+    //public string FormatDays(bool monday, bool tuesday, bool wednesday, bool thursday, bool friday, bool saturday, bool sunday) {
+    //    var dayNames = new List<string> { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
+    //    var selectedDays = new List<string>();
+
+    //    if (monday) selectedDays.Add("Lunes");
+    //    if (tuesday) selectedDays.Add("Martes");
+    //    if (wednesday) selectedDays.Add("Miércoles");
+    //    if (thursday) selectedDays.Add("Jueves");
+    //    if (friday) selectedDays.Add("Viernes");
+    //    if (saturday) selectedDays.Add("Sábado");
+    //    if (sunday) selectedDays.Add("Domingo");
+
+    //    if (selectedDays.Count == 1) { // Un único día
+    //        return selectedDays[0];
+    //    } else if (selectedDays.Count == 2) { // Dos días
+    //        return $"{selectedDays[0]} y {selectedDays[1]}";
+    //    } else if (selectedDays.Count > 2) {
+    //        bool consecutives = true;
+    //        for (int i = 0; i < selectedDays.Count; i++) {
+    //            if (i != 0 && !checkConsecutiveDays(selectedDays[i], selectedDays[i-1])) { consecutives = false; }
+    //        }
+    //        if (consecutives) {
+    //            return $"De {selectedDays.First()} a {selectedDays.Last()}";
+    //        } else {
+    //            return string.Join(", ", selectedDays);
+    //        }
+    //    }
+    //    return "No hay días seleccionados";
+    //}
+
+    //private bool checkConsecutiveDays(string day1, string day2) {
+    //    var dayNames = new[] { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo" };
+    //    int index1 = Array.IndexOf(dayNames, day1);
+    //    int index2 = Array.IndexOf(dayNames, day2);
+    //    return Math.Abs(index1 - index2) == 1 || Math.Abs(index1 - index2) == 6; // Cálculo de diferencia circular entre 2 días
+    //}
+
+    public string GetScheduleHtml(List<Schedule_Row> rows) {
+        // Crear un diccionario que mapee los días de la semana a una lista de franjas horarias
+        Dictionary<string, List<string>> schedule = new Dictionary<string, List<string>>();
+        schedule["Lunes"] = new List<string>();
+        schedule["Martes"] = new List<string>();
+        schedule["Miércoles"] = new List<string>();
+        schedule["Jueves"] = new List<string>();
+        schedule["Viernes"] = new List<string>();
+        schedule["Sábado"] = new List<string>();
+        schedule["Domingo"] = new List<string>();
+
+        // Iterar por cada fila de horario y agregar la franja horaria correspondiente al día
+        foreach (Schedule_Row row in rows) {
+            string formatted_start = row.Start.ToString(@"hh\:mm");
+            string formatted_end = row.End.ToString(@"hh\:mm");
+
+            if (row.Monday) {
+                schedule["Lunes"].Add(formatted_start + " - " + formatted_end);
+            }
+            if (row.Tuesday) {
+                schedule["Martes"].Add(formatted_start + " - " + formatted_end);
+            }
+            if (row.Wednesday) {
+                schedule["Miércoles"].Add(formatted_start + " - " + formatted_end);
+            }
+            if (row.Thursday) {
+                schedule["Jueves"].Add(formatted_start + " - " + formatted_end);
+            }
+            if (row.Friday) {
+                schedule["Viernes"].Add(formatted_start + " - " + formatted_end);
+            }
+            if (row.Saturday) {
+                schedule["Sábado"].Add(formatted_start + " - " + formatted_end);
+            }
+            if (row.Sunday) {
+                schedule["Domingo"].Add(formatted_start + " - " + formatted_end);
+            }
+        }
+
+        // Crear la cadena HTML con los horarios para cada día de la semana
+        StringBuilder sb = new StringBuilder();
+        foreach (KeyValuePair<string, List<string>> entry in schedule) {
+            sb.Append("<div class='schedule_day'>");
+            sb.Append("<h3>" + entry.Key + "</h3>");
+            sb.Append("<ul>");
+            foreach (string timeSlot in entry.Value) {
+                sb.Append("<li>" + timeSlot + "</li>");
+            }
+            sb.Append("</ul>");
+            sb.Append("</div>");
+        }
+
+        return sb.ToString();
+    }
+
+}

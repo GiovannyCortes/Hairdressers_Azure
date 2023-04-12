@@ -1,0 +1,23 @@
+﻿:root {
+    --main-blue: rgb(65,80,115);
+    --main-gray: rgb(68,68,70);
+    --main-red: rgb(156,72,81);
+
+    --second-blue: rgb(77 137 219);
+
+    --header_navbar_bkg: white;
+    --header_navbar_list_item_clr: black;
+    --header_navbar_list_item_hover_bkg: var(--second-blue);
+    --header_navbar_list_item_hover_clr: white;
+    --header_navbar_float_bkg: white;
+    --header_navbar_float_items_clr: black;
+
+    --footer_clr: #2f2f2f;
+    --footer_bkg: white;
+    --footer_others_clr: #999;
+    --footer_btn_clr: #2f2f2f;
+    --footer_btn_hover_clr: white;
+    --footer_btn_bkg: rgb(33, 33, 33, 0.07);
+    --footer_btn_hover_bkg: var(--main-red);
+
+}

@@ -1,0 +1,113 @@
+﻿@{
+    ViewData["Title"] = "C&G: Nueva Peluquería";
+}
+
+<div class="background_base bkg_001"></div>
+<div class="mauto">
+    <h1 class="title_form data">Nueva Peluquería</h1>
+    <div class="container_box">
+        <input type="text" id="autocomplete" class="form-control autocomplete_box" placeholder="Buscador de peluquerías..."/>
+        <form method="post" id="form_CreateHairdresser" action="CreateHairdresser" class="data" style="margin-top: 10px;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="schedules" name="schedules" />
+            <h3>Información del establecimiento</h3>
+            <input type="text" name="Name" id="h_name" class="form-control" maxlength="60" placeholder="Nombre" />
+            <div class="form_div_flex">
+                <input type="text" id="h_address" name="Address" class="form-control" maxlength="100" placeholder="Dirección" />
+                <input type="text" id="h_postalCode" name="PostalCode" class="form-control" maxlength="5" placeholder="Código Postal" />
+            </div>
+            <input type="text" id="h_phone" name="Phone" class="form-control" maxlength="20" placeholder="Teléfono" />
+            <hr />
+            <h3 class="title-schedule">Horario</h3>
+            <div id="schedules_container"></div>
+            <div id="form-schedule-add" class="form-schedule">
+                <i class="fa fa-circle-plus"></i>
+            </div>
+            <div class="btn_container_submit_cancel">
+                <span></span>
+                <span></span>
+                <button type="button" onclick="executeSubmit()" class="form-button form-button-create">
+                    Guardar cambios
+                </button>
+                <span></span>
+                <div style="width: 100%;">
+                    <a asp-controller="User" asp-action="ControlPanel" class="form-button form-button-cancel">
+                        Cancelar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section createhairdresser_script {
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAg4OpucveKYKlYtgmtG5RmCiKJSRCfK9I&callback=initAutocomplete" async defer></script>
+    <script src="~/js/schedule_builder.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            var scheduleCounter = 1; // Contador para generar un identificador único para cada nuevo horario
+            $("#form-schedule-add").click(function () {
+                ScheduleBuilder(scheduleCounter);
+                scheduleCounter++; // Incrementar el contador de horarios
+            });
+           
+        });
+
+        function executeSubmit() {
+            const schedules = collectScheduleData();
+
+            //console.log(JSON.stringify(schedules));
+            //console.log(schedules);
+
+            $("#schedules").val(JSON.stringify(schedules));
+            $("#form_CreateHairdresser").submit();
+        };
+
+        function initAutocomplete() {
+            var input = $('#autocomplete')[0];
+            var autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.addListener('place_changed', function () {
+                var place = autocomplete.getPlace();
+
+                if (place.types.includes("hair_care")) {
+                    var postalCode = place.address_components[place.address_components.length - 1].long_name;
+                    var cp_index = (place.formatted_address).indexOf(postalCode);
+
+                    var address = (cp_index != -1) ? (place.formatted_address).substring(0, cp_index) : (place.formatted_address).split(",", 1)[0];
+
+                    $('#h_name').val(place.name);
+                    $('#h_address').val(address.trim().replace(/(^,)|(,$)/g, ""));
+                    $('#h_postalCode').val(postalCode);
+                    $('#h_phone').val(place.formatted_phone_number);
+                }
+
+                //console.log(place);
+            });
+        }
+
+        function collectScheduleData() {
+            const schedules = [];
+            $('div[name^="schedule_"]').each(function() {
+                const startTime = $(this).find('.form-startTime').val();
+                const endTime = $(this).find('.form-endTime').val();
+                const days = [];
+                $(this).find('.checkbox input:checked').each(function() {
+                    days.push($(this).val());
+                });
+                schedules.push({
+                    Start: startTime,
+                    End: endTime,
+                    Monday: $.inArray("Monday", days) !== -1,
+                    Tuesday: $.inArray("Tuesday", days) !== -1,
+                    Wednesday: $.inArray("Wednesday", days) !== -1,
+                    Thursday: $.inArray("Thursday", days) !== -1,
+                    Friday: $.inArray("Friday", days) !== -1,
+                    Saturday: $.inArray("Saturday", days) !== -1,
+                    Sunday: $.inArray("Sunday", days) !== -1
+                });
+            });
+            return schedules;
+        }
+    </script>
+}

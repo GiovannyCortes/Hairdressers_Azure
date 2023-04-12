@@ -1,0 +1,8 @@
+﻿@{
+    string mainMessage = (@ViewData["ERROR_MESSAGE_TITLE"] == null) ? "Se ha producido un error inesperado" : @ViewData["ERROR_MESSAGE_TITLE"] as string;
+    string lastMessage = (@ViewData["ERROR_MESSAGE_SUBTITLE"] == null) ? "Si el problema persiste, contacte con el equipo de soporte" : @ViewData["ERROR_MESSAGE_SUBTITLE"] as string;
+}
+
+<div class="background_base bkg_001"></div>
+<h1 class="error_message error_mainmessage">@mainMessage</h1>
+<h2 class="error_message error_lastmessage">@lastMessage</h2>
