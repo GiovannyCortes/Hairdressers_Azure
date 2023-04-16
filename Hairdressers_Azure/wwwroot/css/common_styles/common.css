@@ -43,6 +43,12 @@ h1, h2, h3 {
     transform: translateY(-50%);
 }
 
+.disabled {
+    opacity: 0.5;
+    color: black;
+    background-color: whitesmoke;
+}
+
 .mauto {
     margin: auto auto 50px auto !important;
 }

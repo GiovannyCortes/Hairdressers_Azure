@@ -1,0 +1,49 @@
+﻿@model List<Schedule>
+
+@{
+    int hairdresser_id = (int)ViewData["HairdresserId"];
+    string? first_schedule = ViewData["first_schedule"] as string;
+}
+
+<div class="schedule_container">
+    @if (hairdresser_id != 0) { // Existe peluquería, podemos configurar varios horarios
+        <input type="text" list="schedule_options" name="schedule_name" class="schedule_name" maxlength="50" value="@first_schedule" placeholder="Seleccione un horario" />
+        <datalist id="schedule_options">
+            @foreach (Schedule sche in Model) {
+                <option value="@sche.Name" />
+            }
+        </datalist>
+    } else { // No existe peluquería, es el primer horario y por lo tanto, reestringimos las opciones
+        <input type="text" list="schedule_options" name="schedule_name" class="schedule_name" value="Horario general" readonly />
+    }
+    <select class="schedule_types" name="schedule_types">
+        <option value="1">Todos los días</option>
+        <option value="2">De Lunes a Viernes</option>
+        <option value="3" selected>Personalizado</option>
+    </select>
+    <table class="schedule_table">
+        <thead></thead>
+        <tbody>
+            <tr>
+                <td><input type="time" class="schedule_input" name="newStart" min="08:00" value="08:00" /></td>
+                <td><input type="time" class="schedule_input" name="newEnd" min="08:00" value="14:00" /></td>
+                <td>
+                    <button type="button" class="schedule_input schedule_btn_add">Añadir</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    @if (hairdresser_id != 0) {
+        <div class="schedule_buttons">
+            <button type="button" class="schedule_btn_activate disabled" disabled>
+                Activar Horario
+            </button>
+            <button type="button" class="schedule_btn_remove disabled" onclick="deleteSchedule()" disabled>
+                Eliminar Horario
+            </button>
+            <button type="button" class="schedule_btn_add disabled"disabled>
+                Crear Horario
+            </button>
+        </div>        
+    }
+</div>

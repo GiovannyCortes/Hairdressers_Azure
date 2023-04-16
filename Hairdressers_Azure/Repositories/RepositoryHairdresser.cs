@@ -4,6 +4,7 @@ using Hairdressers_Azure.Interfaces;
 using Hairdressers_Azure.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Data;
 using System.Xml.Linq;
 
@@ -41,6 +42,7 @@ namespace Hairdressers_Azure.Repositories {
     public enum AdminRole { Propietario = 1, Gerente = 2, Supervisor = 3, Empleado = 4 }
     public enum ServerRes { OK = 0, ExistingRecord = 1, RecordNotFound = 2, DeleteWithOneAdmin = 3, NotAuthorized = 4 }
     public enum Validates { No_Encontrado = -1, Ok = 0, Rango_Sobreescrito = 1, Duplicado = 2, Rango_incorrecto = 3 }
+    public enum StatusAppointment { NoConfirmada = 0, Finalizada = 1, Activa = 2, Cancelada = 3 }
 
     public class RepositoryHairdresser : IRepositoryHairdresser {
 
@@ -461,24 +463,33 @@ namespace Hairdressers_Azure.Repositories {
         }
 
         public async Task<int> InsertScheduleAsync(int hairdresser_id, string name, bool active) {
-            if (active) {
-                List<Schedule> schedules = await GetSchedulesAsync(hairdresser_id, false);
-                foreach (Schedule sch in schedules) {
-                    if (sch.Active) { sch.Active = false; }
-                }
+            List<Schedule> schedules = await GetSchedulesAsync(hairdresser_id, false);
+            bool duplicado = false;
+            foreach (Schedule sch in schedules) {
+                if (sch.Name.ToLower() == name.ToLower()) { duplicado = true; }
             }
 
-            var newid = context.Schedules.Any() ? context.Schedules.Max(s => s.ScheduleId) + 1 : 1;
-            Schedule schedule = new Schedule {
-                ScheduleId = newid,
-                HairdresserId = hairdresser_id,
-                Name = name,
-                Active = active
-            };
+            if (!duplicado) { // No hay duplicados
+                if (active) {
+                    foreach (Schedule sch in schedules) {
+                        if (sch.Active) { sch.Active = false; }
+                    }
+                }
 
-            context.Schedules.Add(schedule);
-            await context.SaveChangesAsync();
-            return newid;
+                var newid = context.Schedules.Any() ? context.Schedules.Max(s => s.ScheduleId) + 1 : 1;
+                Schedule schedule = new Schedule {
+                    ScheduleId = newid,
+                    HairdresserId = hairdresser_id,
+                    Name = name,
+                    Active = active
+                };
+
+                context.Schedules.Add(schedule);
+                await context.SaveChangesAsync();
+                return newid;
+            } else {
+                return 0;
+            }
         }
 
         public async Task UpdateScheduleAsync(int schedule_id, int hairdresser_id, string name, bool active) {
@@ -498,14 +509,35 @@ namespace Hairdressers_Azure.Repositories {
             }
         }
 
-        public async Task DeleteScheduleAsync(int schedule_id) {
+        public async Task<int> DeleteScheduleAsync(int schedule_id) {
             Schedule? schedule = await FindScheduleAsync(schedule_id, true);
             if (schedule != null) {
-                foreach (Schedule_Row srow in schedule.ScheduleRows) {
-                    context.Schedule_Rows.Remove(srow);
+                List<Schedule> schedules = await GetSchedulesAsync(schedule.HairdresserId, false);
+                if (schedules.Count > 1) { // No puede haber peluquerías sin horarios
+                    if (schedule.ScheduleRows != null && schedule.ScheduleRows.Count > 0) {
+                        foreach (Schedule_Row srow in schedule.ScheduleRows) {
+                            context.Schedule_Rows.Remove(srow);
+                            await context.SaveChangesAsync();
+                        }
+                    } 
+                    context.Schedules.Remove(schedule);
                     await context.SaveChangesAsync();
+                    return 0; // OK 
+                } else {
+                    return 1; // Eliminación denegada
                 }
-                context.Schedules.Remove(schedule);
+            }
+            return 1; // Eliminación denegada
+        }
+
+        public async Task ActivateScheduleAsync(int hairdresser_id, int schedule_id) {
+            Schedule? schedule = await FindScheduleAsync(schedule_id, false);
+            if (schedule != null) {
+                List<Schedule> schedules = await GetSchedulesAsync(hairdresser_id, false);
+                foreach (Schedule sch in schedules) {
+                    if (sch.Active) { sch.Active = false; }
+                }
+                schedule.Active = true;
                 await context.SaveChangesAsync();
             }
         }
@@ -585,7 +617,7 @@ namespace Hairdressers_Azure.Repositories {
             return (int)Validates.Ok;
         }
 
-        public async Task<int> InsertScheduleRowsAsync(int schid, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) {
+        public async Task<Response> InsertScheduleRowsAsync(int schid, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) {
             var newid = context.Schedule_Rows.Any() ? context.Schedule_Rows.Max(s => s.ScheduleRowId) + 1 : 1;
             Schedule_Row schedule_row = new Schedule_Row {
                 ScheduleRowId = newid,
@@ -606,7 +638,7 @@ namespace Hairdressers_Azure.Repositories {
                 context.Schedule_Rows.Add(schedule_row);
                 await context.SaveChangesAsync();
             }
-            return validation;
+            return new Response { ResponseId = newid, ResponseValidation = validation };
         }
 
         public async Task<int> UpdateScheduleRowsAsync(int schedule_row_id, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) {
@@ -662,7 +694,7 @@ namespace Hairdressers_Azure.Repositories {
                 HairdresserId = hairdresser_id,
                 Date = date,
                 Time = time,
-                Approved = false
+                Status = (int)StatusAppointment.NoConfirmada
             };
             context.Appointments.Add(appointment);
             await context.SaveChangesAsync();
@@ -693,7 +725,7 @@ namespace Hairdressers_Azure.Repositories {
         public async Task ApproveAppointmentAsync(int appointment_id) {
             Appointment? appointment = await FindAppoinmentAsync(appointment_id);
             if (appointment != null) {
-                appointment.Approved = true;
+                appointment.Status = (int)StatusAppointment.Activa;
                 await context.SaveChangesAsync();
             }
         }

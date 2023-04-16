@@ -2,6 +2,7 @@
 using Hairdressers_Azure.Helpers;
 using Hairdressers_Azure.Interfaces;
 using Hairdressers_Azure.Models;
+using Hairdressers_Azure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -34,10 +35,10 @@ namespace Hairdressers_Azure.Controllers {
             int user_id = int.Parse(HttpContext.User.FindFirstValue("ID"));
 
             bool administrator_privileges; // Administrador de la peluquería
+            string bussines_hours = "";
             bool hairdresser_view = false; // Vista de una única peluquería
 
             Hairdresser? hairdresser = null;
-            List<BussinesHours>? bussines_hours = null;
             List<Service>? services = null;
 
             if (hairdresserId != null) { // ¿Qué datos de citas queremos? ¿De usuario o de peluquería?
@@ -71,7 +72,7 @@ namespace Hairdressers_Azure.Controllers {
             List<object> appointments_json = await GenerateInfoCalendar(appointments, administrator_privileges, user_id);
             ViewData["HAIRDRESSER"] = hairdresser;
             ViewData["SERVICES"] = services != null && services.Count > 0 ? HelperJson.SerializeObject(services) : null;
-            ViewData["BUSSINESS_HOURS"] = bussines_hours != null ? HelperJson.SerializeObject(bussines_hours) : null;
+            ViewData["BUSSINESS_HOURS"] = bussines_hours;
             ViewData["JSON_APPOINTMENTS"] = HelperJson.SerializeObject(appointments_json);
             ViewData["USER"] = await repo.FindUserAsync(user_id);
             TempData["ADMIN_PRIV"] = administrator_privileges;
@@ -177,7 +178,18 @@ namespace Hairdressers_Azure.Controllers {
                     }
                 }
 
-                string color = app.Approved ? "300ab10" : "#df9b23";
+                string color = "#df503c";
+                switch (app.Status) {
+                    case (int)StatusAppointment.Activa:
+                        color = "#df9b23";
+                        break;
+                    case (int)StatusAppointment.Cancelada:
+                        color = "#a09b92";
+                        break;
+                    case (int)StatusAppointment.Finalizada:
+                        color = "#7cd758";
+                        break;
+                }
 
                 var element = new {
                     title = userName,

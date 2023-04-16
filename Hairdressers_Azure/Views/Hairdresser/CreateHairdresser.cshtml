@@ -10,6 +10,7 @@
         <form method="post" id="form_CreateHairdresser" action="CreateHairdresser" class="data" style="margin-top: 10px;">
             @Html.AntiForgeryToken()
             <input type="hidden" id="schedules" name="schedules" />
+
             <h3>Información del establecimiento</h3>
             <input type="text" name="Name" id="h_name" class="form-control" maxlength="60" placeholder="Nombre" />
             <div class="form_div_flex">
@@ -17,12 +18,10 @@
                 <input type="text" id="h_postalCode" name="PostalCode" class="form-control" maxlength="5" placeholder="Código Postal" />
             </div>
             <input type="text" id="h_phone" name="Phone" class="form-control" maxlength="20" placeholder="Teléfono" />
-            <hr />
-            <h3 class="title-schedule">Horario</h3>
+            <hr /> <br />
+
             <div id="schedules_container"></div>
-            <div id="form-schedule-add" class="form-schedule">
-                <i class="fa fa-circle-plus"></i>
-            </div>
+
             <div class="btn_container_submit_cancel">
                 <span></span>
                 <span></span>
@@ -43,24 +42,74 @@
 @section createhairdresser_script {
     <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAg4OpucveKYKlYtgmtG5RmCiKJSRCfK9I&callback=initAutocomplete" async defer></script>
     <script src="~/js/schedule_builder.js"></script>
+    <script src="~/js/schedule_actions.js"></script>
     <script>
         $(document).ready(function () {
+            $("#schedules_container").load("/Hairdresser/_ScheduleContainerPartial", function() {
+                generateScheduleTable(); // Generamos la estructura de la tabla
 
-            var scheduleCounter = 1; // Contador para generar un identificador único para cada nuevo horario
-            $("#form-schedule-add").click(function () {
-                ScheduleBuilder(scheduleCounter);
-                scheduleCounter++; // Incrementar el contador de horarios
+                toggleTdDays(); // Verificamos si es necesario mostrar el td3
+                storeCurrentType(); // Almacenar el valor actual del select al cargar la página
+
+                $('button.schedule_input.schedule_btn_add:first').off('click').click(function () {
+                    insertRow(false);
+                });
+
+                $(".schedule_types").change(async function () { // Mostrar/Ocultar td3
+                    toggleTdDays(); // Modificamos la columna de días
+                    checkButtonAdd(); // Comprobamos el estado del botón de añadir
+                    storeCurrentType(); // Almacenamos el nuevo valor del type
+                });
+
+                $(document).click(function (event) { // Cuando se haga click fuera de la caja, esta se guarda
+                    if (!$(event.target).closest(".days_button").length && !$(event.target).closest(".days_select").length) {
+                        $(".days_select").slideUp();
+                    }
+                });
             });
-           
         });
 
+        function executeSubmit() {
+            const schedules = collectScheduleData();
+            if (schedules.length > 0) {
+                $("#schedules").val(JSON.stringify(schedules));
+                $("#form_CreateHairdresser").submit();
+            }
+        };
+
+        function collectScheduleData() {
+            const schedules = [];
+            $('tr[id^="schedule_row_"]').each(function () {
+                const startTime = $(this).find('td:eq(0)').text();
+                const endTime = $(this).find('td:eq(1)').text();
+                let textdays = $(this).find('td:eq(2)').text();
+
+                if (textdays === "De Lunes a Domingo") {
+                    textdays = "L M X J V S D";
+                } else if (textdays === "De Lunes a Viernes") {
+                    textdays = "L M X J V";
+                }
+
+                schedules.push({
+                    Start: startTime,
+                    End: endTime,
+                    Monday:    textdays.includes("L"),
+                    Tuesday:   textdays.includes("M"),
+                    Wednesday: textdays.includes("X"),
+                    Thursday:  textdays.includes("J"),
+                    Friday:    textdays.includes("V"),
+                    Saturday:  textdays.includes("S"),
+                    Sunday:    textdays.includes("D")
+                });
+            });
+            return schedules;
+        }
 
         function initAutocomplete() {
             var input = $('#autocomplete')[0];
             var autocomplete = new google.maps.places.Autocomplete(input);
             autocomplete.addListener('place_changed', function () {
                 var place = autocomplete.getPlace();
-
                 if (place.types.includes("hair_care")) {
                     var postalCode = place.address_components[place.address_components.length - 1].long_name;
                     var cp_index = (place.formatted_address).indexOf(postalCode);
@@ -71,33 +120,7 @@
                     $('#h_postalCode').val(postalCode);
                     $('#h_phone').val(place.formatted_phone_number);
                 }
-
-                //console.log(place);
             });
-        }
-
-        function collectScheduleData() {
-            const schedules = [];
-            $('div[name^="schedule_"]').each(function() {
-                const startTime = $(this).find('.form-startTime').val();
-                const endTime = $(this).find('.form-endTime').val();
-                const days = [];
-                $(this).find('.checkbox input:checked').each(function() {
-                    days.push($(this).val());
-                });
-                schedules.push({
-                    Start: startTime,
-                    End: endTime,
-                    Monday: $.inArray("Monday", days) !== -1,
-                    Tuesday: $.inArray("Tuesday", days) !== -1,
-                    Wednesday: $.inArray("Wednesday", days) !== -1,
-                    Thursday: $.inArray("Thursday", days) !== -1,
-                    Friday: $.inArray("Friday", days) !== -1,
-                    Saturday: $.inArray("Saturday", days) !== -1,
-                    Sunday: $.inArray("Sunday", days) !== -1
-                });
-            });
-            return schedules;
         }
     </script>
 }

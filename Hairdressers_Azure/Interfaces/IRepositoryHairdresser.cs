@@ -47,15 +47,16 @@ namespace Hairdressers_Azure.Interfaces {
         Task<Schedule?> FindActiveScheduleAsync(int hairdresser_id);
         Task<int> InsertScheduleAsync(int hairdresser_id, string name, bool active);
         Task UpdateScheduleAsync(int schedule_id, int hairdresser_id, string name, bool active);
-        Task DeleteScheduleAsync(int schedule_id);
+        Task<int> DeleteScheduleAsync(int schedule_id);
+        Task ActivateScheduleAsync(int hairdresser_id, int schedule_id);
         #endregion
 
         #region SCHEDULE_ROW
         Task<List<Schedule_Row>> GetScheduleRowsAsync(int schedule_id);
         Task<List<Schedule_Row>> GetActiveScheduleRowsAsync(int hairdresser_id);
         Task<Schedule_Row?> FindScheduleRowAsync(int schedule_row_id);
-        Task<int> InsertScheduleRowsAsync(int schid, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun);
-        Task<int> UpdateScheduleRowsAsync(int schedule_row_id, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun);
+        Task<Response> InsertScheduleRowsAsync(int schid, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun);
+        //Task<int> UpdateScheduleRowsAsync(int schedule_row_id, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun); Deprecated
         Task DeleteScheduleRowsAsync(int schedule_row_id);
         #endregion
 

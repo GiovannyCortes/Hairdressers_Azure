@@ -1,0 +1,201 @@
+﻿select {
+    cursor: pointer;
+}
+
+.schedule_container {
+    --sch_container_padding: 15px;
+    --sch_container_bkg_1: rgb(97, 218, 255);
+    --sch_container_bkg_2: rgb(65,80,115);
+    width: 100%;
+    min-height: calc(150px - calc(var(--sch_container_padding) * 2));
+    padding: var(--sch_container_padding);
+    margin-inline: auto;
+    border-radius: 25px;
+    display: grid;
+    row-gap: 10px;
+    grid-template-areas: "sche type" "tab tab" "buttons buttons";
+    overflow: hidden;
+    background-size: 260% auto;
+    background-image: linear-gradient(335deg, var(--sch_container_bkg_2) 0%, var(--sch_container_bkg_1) 55%, var(--sch_container_bkg_2) 90%);
+    box-shadow: inset 0px 0px 20px rgba(65, 80, 115, 0.5), inset 0px 5px 5px -1px rgba(20, 42, 82, 0.3), inset 4px 4px 8px rgba(65, 80, 115, 0.5), inset -4px -4px 8px rgba(20, 42, 82, 0.3);
+}
+
+.schedule_name {
+    color: white;
+    font-size: 20px;
+    text-transform: uppercase;
+    width: 100%;
+    border: 0px;
+    border-radius: 5px;
+    border-bottom: 2px solid whitesmoke;
+    background-color: transparent;
+    grid-area: sche;
+}
+
+.schedule_name:focus-visible, .schedule_types:focus-visible {
+    outline: none;
+}
+
+.schedule_name::placeholder {
+    color: rgba(245, 245, 245, 0.8);
+    text-transform: none;
+    font-style: italic;
+}
+
+.schedule_types {
+    width: clamp(60%, 260px, 90%);
+    border: 0px;
+    border-radius: 15px;
+    padding: 5px 2rem 5px 10px !important;
+    font-size: 15px;
+    margin-inline: auto;
+    grid-area: type;
+    background: url("data:image/svg+xml,<svg height='10px' width='10px' viewBox='0 0 16 16' fill='%23000000' xmlns='http://www.w3.org/2000/svg'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>") no-repeat;
+    background-color: rgba(245, 245, 245, 1);
+    background-position: calc(100% - 0.75rem) center !important;
+    -moz-appearance: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
+
+.schedule_table {
+    grid-column: span 2;
+    grid-area: tab;
+    border-spacing: 0;
+    border-collapse: separate;
+}
+
+.schedule_table tr th, .schedule_table tr td {
+    border-right: 2px solid whitesmoke;
+    border-bottom: 2px solid whitesmoke;
+    padding: 5px;
+}
+
+.schedule_table tr th {
+    text-transform: uppercase;
+}
+
+.schedule_table tr th:first-child, .schedule_table tr td:first-child {
+    border-left: 2px solid whitesmoke;
+}
+
+.schedule_table tr th {
+    background: whitesmoke;
+    border-top: solid 2px whitesmoke;
+}
+
+.schedule_table tr:first-child th:first-child {
+    border-top-left-radius: 15px;
+}
+
+.schedule_table tr:first-child th:last-child {
+    border-top-right-radius: 15px;
+}
+
+.schedule_table tr:last-child td:first-child {
+    border-bottom-left-radius: 15px;
+}
+
+.schedule_table tr:last-child td:last-child {
+    border-bottom-right-radius: 15px;
+}
+
+@media only screen and (orientation: portrait) {
+    .schedule_container {
+        grid-template-areas: "sche sche" "type type" "tab tab" "buttons buttons";
+    }
+
+    .schedule_types {
+        width: 100%;
+    }
+}
+
+.schedule_input {
+    width: 90%;
+    display: block;
+    padding: 5px;
+    margin-inline: auto;
+    cursor: pointer;
+    text-align: center;
+    border: 0px;
+    border-radius: 15px;
+    background-color: white;
+    overflow: hidden;
+}
+
+.days_select {
+    width: calc((calc(clamp(80%, 800px, 100%) - calc(var(--sch_container_padding) * 2)) / 6) - 10px);
+    position: absolute;
+    margin-top: 10px;
+    border-radius: 15px;
+    padding: 5px;
+    background-color: whitesmoke;
+}
+
+.days_label {
+    display: block;
+    cursor: pointer;
+    padding: 5px 10px;
+    text-align: left;
+}
+
+.days_label:hover {
+    color: white;
+    border-radius: 15px;
+    background-color: rgb(65,80,115);
+}
+
+.schedule_btn_add {
+    color: white;
+    border: 1px solid white;
+    background-color: rgb(92, 184, 92);
+}
+
+.schedule_btn_remove {
+    color: white;
+    border: 1px solid white;
+    background-color: rgb(217, 83, 79);
+}
+
+.schedule_buttons {
+    grid-area: buttons;
+    grid-column: span 2;
+    display: flex;
+}
+
+.schedule_buttons > button, .schedule_buttons > a {
+    display: inline-block;
+    position: relative;
+    width: fit-content;
+    padding: 0.5em 2em;
+    margin: 0px auto;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 6em;
+    transition: all .2s;
+    border: none;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: smaller;
+    cursor: pointer;
+}
+
+.schedule_btn_add {
+    color: white;
+    background-color: rgb(92, 184, 92);
+}
+
+.schedule_btn_remove {
+    color: white;
+    background-color: rgb(217, 83, 79);
+}
+
+.schedule_btn_activate {
+    color: white;
+    background-color: rgb(217, 180, 79);
+}
+
+.schedule_btn_cancel {
+    color: white;
+    background-color: rgb(90, 90, 90);
+}

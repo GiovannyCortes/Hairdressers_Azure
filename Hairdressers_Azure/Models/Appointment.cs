@@ -21,7 +21,8 @@ namespace Hairdressers_Azure.Models {
         [Column("time")]
         public TimeSpan Time { get; set; }
 
-        [Column("approved")]
-        public bool Approved { get; set; }
+        [Column("status")]
+        public int Status { get; set; }
+
     }
 }

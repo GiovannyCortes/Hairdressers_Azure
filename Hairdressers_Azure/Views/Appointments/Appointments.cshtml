@@ -105,7 +105,6 @@
                     calendar.unselect();
                 },
                 eventClick: function (arg) {
-                    debugger;
                     var permission = arg.el.fcSeg.eventRange.def.extendedProps.userPermission;
 
                     var title = (adminPriv || permission) ? arg.el.fcSeg.eventRange.def.title : "CITA";
@@ -244,8 +243,7 @@
                         '<input type="time" id="service_time" class="mySwal_inputs mySwal_inline" value="' + time + '">' +
                         '<div class="service_container">' +
                         '<button class="service_button">Servicios</button>' +
-                        '<div class="service_select">' +
-                        '</div>' +
+                        '<div class="service_select"></div>' +
                         '</div>',
                     didRender: function () {
                         const serviceSelect = $(".service_select");

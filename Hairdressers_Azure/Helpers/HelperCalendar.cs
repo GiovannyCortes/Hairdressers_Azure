@@ -3,9 +3,9 @@
 namespace Hairdressers_Azure.Helpers {
     public static class HelperCalendar {
 
-        public static List<BussinesHours> GetBussinesHours(List<Schedule_Row> schedulesRows) {
-            // Crear una lista vacía para almacenar los objetos BussinesHours resultantes
-            List<BussinesHours> bussinesHoursList = new List<BussinesHours>();
+        public static string GetBussinesHours(List<Schedule_Row> schedulesRows) {
+            // Se almacenará en el siguiente string, el JSON con las horas de negocio
+            string bussinesHoursList = "[";
 
             // Crear una lista para almacenar temporalmente los días de la semana en los que se aplica cada rango
             List<int> daysOfWeek = new List<int>();
@@ -30,13 +30,12 @@ namespace Hairdressers_Azure.Helpers {
                         currentRangeEnd = scheduleRow.End;
                         AddDayOfWeekToList(daysOfWeek, scheduleRow);
                     } else {
-                        // Si el inicio del rango actual es diferente al inicio del objeto actual, crear un nuevo objeto BussinesHours
-                        BussinesHours bussinesHours = new BussinesHours {
-                            daysOfWeek = daysOfWeek,
-                            startTime = currentRangeStart.ToString(@"hh\:mm"),
-                            endTime = currentRangeEnd.ToString(@"hh\:mm")
-                        };
-                        bussinesHoursList.Add(bussinesHours);
+                        // Si el inicio del rango actual es diferente al inicio del objeto actual, añadimos un nuevo objeto
+                        bussinesHoursList += @"{
+                                                    daysOfWeek = " + daysOfWeek.ToString() + "," +
+                                                    "startTime = " + currentRangeStart.ToString(@"hh\:mm") + "," +
+                                                    "endTime = " + currentRangeEnd.ToString(@"hh\:mm") +
+                                               "}";
 
                         // Inicializar el rango actual con los valores del objeto actual
                         currentRangeStart = scheduleRow.Start;
@@ -51,33 +50,25 @@ namespace Hairdressers_Azure.Helpers {
 
             // Si todavía hay un rango actual sin procesar, agregarlo a la lista
             if (currentRangeStart != TimeSpan.Zero && currentRangeEnd != TimeSpan.Zero) {
-                BussinesHours bussinesHours = new BussinesHours {
-                    daysOfWeek = daysOfWeek,
-                    startTime = currentRangeStart.ToString(@"hh\:mm"),
-                    endTime = currentRangeEnd.ToString(@"hh\:mm")
-                };
-                bussinesHoursList.Add(bussinesHours);
+                bussinesHoursList += @"{
+                                            daysOfWeek = " + daysOfWeek.ToString() + "," +
+                                            "startTime = " + currentRangeStart.ToString(@"hh\:mm") + "," +
+                                            "endTime = " + currentRangeEnd.ToString(@"hh\:mm") +
+                                     "}";
             }
 
-            return bussinesHoursList;
+            return bussinesHoursList + "]";
         }
 
         // Método auxiliar para agregar los días de la semana del objeto actual a la lista
         private static void AddDayOfWeekToList(List<int> daysOfWeek, Schedule_Row scheduleRow) {
-            if (scheduleRow.Monday)
-                daysOfWeek.Add(1);
-            if (scheduleRow.Tuesday)
-                daysOfWeek.Add(2);
-            if (scheduleRow.Wednesday)
-                daysOfWeek.Add(3);
-            if (scheduleRow.Thursday)
-                daysOfWeek.Add(4);
-            if (scheduleRow.Friday)
-                daysOfWeek.Add(5);
-            if (scheduleRow.Saturday)
-                daysOfWeek.Add(6);
-            if (scheduleRow.Sunday)
-                daysOfWeek.Add(7);
+            if (scheduleRow.Monday)     daysOfWeek.Add(1);
+            if (scheduleRow.Tuesday)    daysOfWeek.Add(2);
+            if (scheduleRow.Wednesday)  daysOfWeek.Add(3);
+            if (scheduleRow.Thursday)   daysOfWeek.Add(4);
+            if (scheduleRow.Friday)     daysOfWeek.Add(5);
+            if (scheduleRow.Saturday)   daysOfWeek.Add(6);
+            if (scheduleRow.Sunday)     daysOfWeek.Add(7);
         }
 
     }
