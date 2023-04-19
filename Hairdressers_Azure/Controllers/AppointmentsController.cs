@@ -180,13 +180,13 @@ namespace Hairdressers_Azure.Controllers {
 
                 string color = "#df503c";
                 switch (app.Status) {
-                    case (int)StatusAppointment.Activa:
+                    case StatusAppointment.Activa:
                         color = "#df9b23";
                         break;
-                    case (int)StatusAppointment.Cancelada:
+                    case StatusAppointment.Cancelada:
                         color = "#a09b92";
                         break;
-                    case (int)StatusAppointment.Finalizada:
+                    case StatusAppointment.Finalizada:
                         color = "#7cd758";
                         break;
                 }

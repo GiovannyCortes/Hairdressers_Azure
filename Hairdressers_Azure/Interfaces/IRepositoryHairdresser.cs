@@ -56,7 +56,6 @@ namespace Hairdressers_Azure.Interfaces {
         Task<List<Schedule_Row>> GetActiveScheduleRowsAsync(int hairdresser_id);
         Task<Schedule_Row?> FindScheduleRowAsync(int schedule_row_id);
         Task<Response> InsertScheduleRowsAsync(int schid, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun);
-        //Task<int> UpdateScheduleRowsAsync(int schedule_row_id, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun); Deprecated
         Task DeleteScheduleRowsAsync(int schedule_row_id);
         #endregion
 

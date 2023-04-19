@@ -4,9 +4,7 @@ using Hairdressers_Azure.Interfaces;
 using Hairdressers_Azure.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Data;
-using System.Xml.Linq;
 
 #region PROCEDURES
 /*
@@ -39,10 +37,8 @@ using System.Xml.Linq;
 
 namespace Hairdressers_Azure.Repositories {
 
-    public enum AdminRole { Propietario = 1, Gerente = 2, Supervisor = 3, Empleado = 4 }
     public enum ServerRes { OK = 0, ExistingRecord = 1, RecordNotFound = 2, DeleteWithOneAdmin = 3, NotAuthorized = 4 }
     public enum Validates { No_Encontrado = -1, Ok = 0, Rango_Sobreescrito = 1, Duplicado = 2, Rango_incorrecto = 3 }
-    public enum StatusAppointment { NoConfirmada = 0, Finalizada = 1, Activa = 2, Cancelada = 3 }
 
     public class RepositoryHairdresser : IRepositoryHairdresser {
 
@@ -52,6 +48,7 @@ namespace Hairdressers_Azure.Repositories {
             this.context = context;
         }
 
+        #region TOKENS
         public string GenerateToken() {
             const string caracteresPermitidos = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var random = new Random();
@@ -87,7 +84,7 @@ namespace Hairdressers_Azure.Repositories {
                 return false;
             }
         }
-
+        #endregion
 
         #region USER
         public async Task<User?> FindUserAsync(int user_id) {
@@ -226,7 +223,7 @@ namespace Hairdressers_Azure.Repositories {
                 Admin new_admin = new Admin {
                     HairdresserId = hairdresser_id,
                     UserId = user_id,
-                    Role = (byte)role
+                    Role = role
                 };
                 context.Admins.Add(new_admin);
                 await context.SaveChangesAsync();
@@ -237,7 +234,7 @@ namespace Hairdressers_Azure.Repositories {
         public async Task<int> UpdateAdminAsync(int hairdresser_id, int user_id, AdminRole role) {
             Admin? admin = await FindAdminAsync(hairdresser_id, user_id);
             if (admin != null) {
-                admin.Role = (byte)role;
+                admin.Role = role;
                 await context.SaveChangesAsync();
                 return (int)ServerRes.OK;
             } else { return (int)ServerRes.RecordNotFound; }
@@ -641,29 +638,6 @@ namespace Hairdressers_Azure.Repositories {
             return new Response { ResponseId = newid, ResponseValidation = validation };
         }
 
-        public async Task<int> UpdateScheduleRowsAsync(int schedule_row_id, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) {
-            Schedule_Row? schedule_row = await FindScheduleRowAsync(schedule_row_id);
-            if (schedule_row != null) {
-                schedule_row.Start = start;
-                schedule_row.End = end;
-                schedule_row.Monday = mon;
-                schedule_row.Tuesday = tue;
-                schedule_row.Wednesday = wed;
-                schedule_row.Thursday = thu;
-                schedule_row.Friday = fri;
-                schedule_row.Saturday = sat;
-                schedule_row.Sunday = sun;
-
-                int validation = await ValidateScheduleRowAsync(schedule_row);
-                if (validation == (int)Validates.Ok) { // Validación correcta
-                    await context.SaveChangesAsync();
-                }
-                return validation;
-            } else {
-                return (int)Validates.No_Encontrado;
-            }
-        }
-
         public async Task DeleteScheduleRowsAsync(int schedule_row_id) {
             Schedule_Row? schedule_row = await FindScheduleRowAsync(schedule_row_id);
             if (schedule_row != null) {
@@ -725,7 +699,7 @@ namespace Hairdressers_Azure.Repositories {
         public async Task ApproveAppointmentAsync(int appointment_id) {
             Appointment? appointment = await FindAppoinmentAsync(appointment_id);
             if (appointment != null) {
-                appointment.Status = (int)StatusAppointment.Activa;
+                appointment.Status = StatusAppointment.Activa;
                 await context.SaveChangesAsync();
             }
         }
