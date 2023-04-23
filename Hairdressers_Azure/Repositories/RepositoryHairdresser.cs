@@ -6,7 +6,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
-#region PROCEDURES
+#region NO
 /*
 
     CREATE PROCEDURE SP_COMPARE_ROLE(@HAIRDRESSER_ID INT, @USER_ID1 INT, @USER_ID2 INT, @RES BIT OUT)
@@ -20,27 +20,30 @@ using System.Data;
 		    SET @RES = 0;
     GO
 
-    CREATE PROCEDURE SP_ASSIGN_TOKEN(@USER_ID INT, @TOKEN NVARCHAR(100))
+
+
+ */
+#endregion
+
+/*    CREATE PROCEDURE SP_ASSIGN_TOKEN(@USER_ID INT, @TOKEN NVARCHAR(100))
     AS
 	    UPDATE USERS SET TEMP_TOKEN = @TOKEN WHERE USER_ID = @USER_ID;
     GO
-
-    CREATE PROCEDURE SP_GET_HAIRDRESSER_EMAILS (@HAIRDRESSER_ID INT)
+     CREATE PROCEDURE SP_GET_HAIRDRESSER_EMAILS (@HAIRDRESSER_ID INT)
     AS
 	    SELECT EMAIL 
 	    FROM USERS INNER JOIN ADMINS ON ADMINS.user_id = USERS.user_id
 	    WHERE ADMINS.hairdresser_id = 1
     GO
-
  */
-#endregion
+
 
 namespace Hairdressers_Azure.Repositories {
 
     public enum ServerRes { OK = 0, ExistingRecord = 1, RecordNotFound = 2, DeleteWithOneAdmin = 3, NotAuthorized = 4 }
     public enum Validates { No_Encontrado = -1, Ok = 0, Rango_Sobreescrito = 1, Duplicado = 2, Rango_incorrecto = 3 }
 
-    public class RepositoryHairdresser : IRepositoryHairdresser {
+    public class RepositoryHairdresser {
 
         HairdressersContext context;
 
@@ -56,19 +59,6 @@ namespace Hairdressers_Azure.Repositories {
                     Enumerable.Repeat(caracteresPermitidos, 50).Select(s => s[random.Next(s.Length)]).ToArray()
                 );
             return token;
-        }
-
-        public async Task InsertTokenAsync(int user_id, string token) {
-            var consulta = from data in context.Users
-                           where data.UserId == user_id
-                           select new User {
-                               TempToken = data.TempToken ?? ""
-                           };
-            User? user = await consulta.FirstOrDefaultAsync();
-            if (user != null) {
-                user.TempToken = token;
-                await context.SaveChangesAsync();
-            }
         }
 
         public async Task<bool> ValidateTokenAsync(int user_id, string token) {
@@ -635,7 +625,7 @@ namespace Hairdressers_Azure.Repositories {
                 context.Schedule_Rows.Add(schedule_row);
                 await context.SaveChangesAsync();
             }
-            return new Response { ResponseId = newid, ResponseValidation = validation };
+            return new Response { SatisfactoryId = newid, ResponseCode = validation };
         }
 
         public async Task DeleteScheduleRowsAsync(int schedule_row_id) {
