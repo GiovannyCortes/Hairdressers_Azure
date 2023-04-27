@@ -1,11 +1,9 @@
 ﻿using Hairdressers_Azure.Helpers;
-using Hairdressers_Azure.Interfaces;
-using Hairdressers_Azure.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hairdressers_Azure.Controllers {
     public class LandingController : Controller {
-
+        /*
         public IActionResult Index() {
             Schedule_Row prueba = new Schedule_Row { 
                 Start = new TimeSpan(8,0,0),
@@ -37,6 +35,6 @@ namespace Hairdressers_Azure.Controllers {
         public IActionResult UseTerms() {
             return View();
         }
-
+        */
     }
 }

@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Hairdressers_Azure.Filters;
-using Hairdressers_Azure.Models;
-using Hairdressers_Azure.Interfaces;
 using Hairdressers_Azure.Helpers;
 
 namespace Hairdressers_Azure.Controllers {
     public class HairdresserController : Controller {
-
+        /*
         private IRepositoryHairdresser repo_hairdresser;
 
         public HairdresserController(IRepositoryHairdresser repo_hairdresser) {
@@ -141,6 +139,6 @@ namespace Hairdressers_Azure.Controllers {
             await repo_hairdresser.DeleteScheduleRowsAsync(scheduleRow_id);
             return Json("OK");
         }
-
+        */
     }
 }

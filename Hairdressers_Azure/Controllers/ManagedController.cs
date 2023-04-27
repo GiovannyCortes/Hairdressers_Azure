@@ -2,13 +2,10 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Hairdressers_Azure.Extensions;
-using Hairdressers_Azure.Models;
-using Hairdressers_Azure.Interfaces;
 
 namespace Hairdressers_Azure.Controllers {
     public class ManagedController : Controller {
-
+        /*
         private IRepositoryHairdresser repo_hairdresser;
 
         public ManagedController(IRepositoryHairdresser repo_hairdresser) {
@@ -86,6 +83,6 @@ namespace Hairdressers_Azure.Controllers {
         public IActionResult Error() {
             return View();
         }
-
+        */
     }
 }

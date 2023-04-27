@@ -8,12 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CutAndGo" Version="2.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.14" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.12" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="NugetHairdressersAzure" Version="2.0.0" />
   </ItemGroup>
 
 </Project>

@@ -1,16 +1,11 @@
-﻿using Hairdressers_Azure.Filters;
-using Hairdressers_Azure.Helpers;
-using Hairdressers_Azure.Interfaces;
-using Hairdressers_Azure.Models;
-using Hairdressers_Azure.Repositories;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security.Claims;
 
 namespace Hairdressers_Azure.Controllers {
     public class AppointmentsController : Controller {
-
+        /*
         private readonly IConfiguration _configuration;
         private IRepositoryHairdresser repo;
 
@@ -29,6 +24,7 @@ namespace Hairdressers_Azure.Controllers {
          *  en caché un validador para no recuperar en varias ocasiones la validación de la relación user-hairdresser)
          */
 
+        /*
         [AuthorizeUsers]
         public async Task<IActionResult> Appointments(int? hairdresserId) {
             List<Appointment> appointments;
@@ -228,6 +224,6 @@ namespace Hairdressers_Azure.Controllers {
             }
             return price.ToString() + " €";
         }
-
+        */
     }
 }

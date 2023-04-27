@@ -1,8 +1,6 @@
-﻿using Hairdressers_Azure.Models;
-
-namespace Hairdressers_Azure.Helpers {
+﻿namespace Hairdressers_Azure.Helpers {
     public static class HelperCalendar {
-
+        /*
         public static string GetBussinesHours(List<Schedule_Row> schedulesRows) {
             // Se almacenará en el siguiente string, el JSON con las horas de negocio
             string bussinesHoursList = "[";
@@ -70,6 +68,6 @@ namespace Hairdressers_Azure.Helpers {
             if (scheduleRow.Saturday)   daysOfWeek.Add(6);
             if (scheduleRow.Sunday)     daysOfWeek.Add(7);
         }
-
+        */
     }
 }

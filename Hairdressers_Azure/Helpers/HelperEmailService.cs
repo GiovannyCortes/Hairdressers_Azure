@@ -1,6 +1,4 @@
-﻿using Hairdressers_Azure.Models;
-using NuGet.Common;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
 
 namespace Hairdressers_Azure.Helpers {

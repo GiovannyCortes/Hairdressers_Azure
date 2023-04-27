@@ -1,13 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Hairdressers_Azure.Filters;
-using System.Security.Claims;
-using Hairdressers_Azure.Helpers;
-using Hairdressers_Azure.Models;
-using Hairdressers_Azure.Interfaces;
 
 namespace Hairdressers_Azure.Controllers {
     public class UserController : Controller {
-
+        /*
         private readonly IConfiguration _configuration;
         private IRepositoryHairdresser repo_hairdresser;
 
@@ -89,6 +84,6 @@ namespace Hairdressers_Azure.Controllers {
             }
             return RedirectToAction("LogOut", "Managed");
         }
-
+        */
     }
 }

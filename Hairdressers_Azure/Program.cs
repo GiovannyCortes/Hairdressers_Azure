@@ -1,22 +1,11 @@
-using Hairdressers_Azure.Data;
-using Hairdressers_Azure.Interfaces;
-using Hairdressers_Azure.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-string connectionstring = builder.Configuration.GetConnectionString("SqlHairdressersHome");
 
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSession(options => {
         options.IdleTimeout = TimeSpan.FromMinutes(30);
     });
-
-    builder.Services.AddTransient<IRepositoryHairdresser, RepositoryHairdresser>();
-    builder.Services.AddDbContext<HairdressersContext> (
-        options => options.UseSqlServer(connectionstring)
-    );
 
     builder.Services.AddAuthentication(options => {
         options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
