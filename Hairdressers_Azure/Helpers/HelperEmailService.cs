@@ -17,11 +17,11 @@ namespace Hairdressers_Azure.Helpers {
         private MailMessage ConfigureMailMessage(string destinatario, string asunto, string mensaje) {
             string email = configuration.GetValue<string>("MailSettings:Credentials:User");
             MailMessage mailMessage = new MailMessage();
-            mailMessage.From = new MailAddress(email);
-            mailMessage.To.Add(new MailAddress(destinatario));
-            mailMessage.Subject = asunto;
-            mailMessage.Body = mensaje;
-            mailMessage.IsBodyHtml = true;
+                        mailMessage.From = new MailAddress(email);
+                        mailMessage.To.Add(new MailAddress(destinatario));
+                        mailMessage.Subject = asunto;
+                        mailMessage.Body = mensaje;
+                        mailMessage.IsBodyHtml = true;
             return mailMessage;
         }
 
@@ -75,7 +75,7 @@ namespace Hairdressers_Azure.Helpers {
 
                         Para poder verificar su correo electrónico en la aplicación Cut&Go, haga clic en el siguiente enlace: <br> <br>
 
-                        <center><a href='{local}/User/ValidateEmail?token={token}' style='
+                        <center><a href='{this.local}/User/ValidateEmail?token={token}' style='
                             text-decoration: none;
                             background-color: #415073;
                             color: white;
@@ -97,7 +97,7 @@ namespace Hairdressers_Azure.Helpers {
                         Atentamente, <br>
                         El equipo de Cut&Go
                     </p> <br>
-                    <center><img src='{image_url}' style='max-height: 150px;'/></center>
+                    <center><img src='{this.image_url}' style='max-height: 150px;'/></center>
                 </body>
                 </html>";
 
@@ -121,7 +121,7 @@ namespace Hairdressers_Azure.Helpers {
                     </p>
                     <p>Una vez más le damos las gracias por confiar en nuestro servicio y le informamos de que
                        si tiene alguna duda por favor no dude en contactarnos: cutandgo.app@gmail.com</p>
-                    <center><img src='{image_url}' style='max-height: 150px;'/></center>
+                    <center><img src='{this.image_url}' style='max-height: 150px;'/></center>
                 </body>
                 </html>";
             await SendMailAsync(destinatario, "Cut&Go: Confirmación de cita", mensaje);
@@ -156,7 +156,7 @@ namespace Hairdressers_Azure.Helpers {
                     <p>Coste Total: {coste} €</p>
                     <p>Puede confirmar la cita pulsando el botón de más abajo, desde la aplicación o contactando directamente con el usuario</p> <br>
                     <center>
-                        <a href='{local}/Appointments/AppointmentConfirm?token={token}&hid={hairdresser_id}&apid={appointment_id}' style='
+                        <a href='{this.local}/Appointments/AppointmentConfirm?token={token}&hid={hairdresser_id}&apid={appointment_id}' style='
                             text-decoration: none;
                             background-color: #415073;
                             color: white;
@@ -171,7 +171,7 @@ namespace Hairdressers_Azure.Helpers {
                         </a>
                     </center> <br> 
                     <p>Datos de contacto: {email}</p>
-                    <center><img src='{image_url}' style='max-height: 150px;'/></center>
+                    <center><img src='{this.image_url}' style='max-height: 150px;'/></center>
                 </body>
                 </html>";
 

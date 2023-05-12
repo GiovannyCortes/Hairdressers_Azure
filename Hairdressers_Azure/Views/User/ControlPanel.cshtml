@@ -1,18 +1,17 @@
-﻿@*@model User
-
-@{
+﻿@{
     ViewData["Title"] = "C&G: Panel de Control";
     List<Hairdresser>? peluquerias = ViewData["HAIRDRESSERS"] as List<Hairdresser>;
 }
 
 <div class="background_base bkg_001"></div>
 <div class="mauto">
-    <h1 class="title_form">@Model.Name @Model.LastName</h1>
+    <h1 class="title_form">@Context.User.Identity.Name @Context.User.FindFirstValue("LAST_NAME")</h1>
     <div class="container_box">
         <div class="cb_section_1">
             <div></div>
-            <p>@Model.Email
-                @if (Model.EmailConfirmed) {
+            <p>
+                @Context.User.FindFirstValue("EMAIL")
+                @if (bool.Parse(Context.User.FindFirstValue("EMAIL_CONFIRMED"))) {
                     <abbr title="Email verificado" style="cursor: pointer;">
                         <i class="fa fa-check" style="color: green;"></i>
                     </abbr>
@@ -22,7 +21,7 @@
                     </abbr>
                 }
             </p>
-            <p>@Model.Phone</p>
+            <p>@Context.User.FindFirstValue("PHONE")</p>
             <a asp-controller="User" asp-action="UpdateUser">
                 Editar
             </a>
@@ -30,11 +29,11 @@
         </div>
             <div class="cb_section_2" >
                 @if (peluquerias != null) {
-                    @foreach (Hairdresser h in peluquerias) {
-                        <a asp-controller="Hairdresser" asp-action="ControlPanel" asp-route-hid="@h.HairdresserId" class="card card_view">
-                            <h3>@h.Name</h3>
-                            <p>@h.Address</p>
-                            <p>@h.Phone</p>
+                    @foreach (Hairdresser hairdresser in peluquerias) {
+                        <a asp-controller="Hairdresser" asp-action="ControlPanel" asp-route-hid="@hairdresser.HairdresserId" class="card card_view">
+                            <h3>@hairdresser.Name</h3>
+                            <p>@hairdresser.Address</p>
+                            <p>@hairdresser.Phone</p>
                         </a>
                     }
                 }
@@ -76,4 +75,4 @@
             });
         }
     </script>
-}*@
+}

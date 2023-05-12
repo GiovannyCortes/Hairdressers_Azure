@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using CutAndGo.Interfaces;
+using CutAndGo.Models;
 
 namespace Hairdressers_Azure.Controllers {
     public class ManagedController : Controller {
-        /*
+        
         private IRepositoryHairdresser repo_hairdresser;
 
         public ManagedController(IRepositoryHairdresser repo_hairdresser) {
@@ -83,6 +85,6 @@ namespace Hairdressers_Azure.Controllers {
         public IActionResult Error() {
             return View();
         }
-        */
+        
     }
 }

@@ -1,3 +1,4 @@
+using Hairdressers_Azure.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
         options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     }).AddCookie();
+
+    builder.Services.AddHttpContextAccessor();
+
+    builder.Services.AddTransient<ServiceCutAndGo>();
 
     builder.Services.AddAntiforgery();
     builder.Services.AddControllersWithViews(options => {
