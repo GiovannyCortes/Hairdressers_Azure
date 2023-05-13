@@ -1,11 +1,19 @@
+using Azure.Storage.Blobs;
 using Hairdressers_Azure.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Blobs
+string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAccount");
+BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
+builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
+
+    builder.Services.AddTransient<ServiceStorageBlobs>();
+
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSession(options => {
-        options.IdleTimeout = TimeSpan.FromMinutes(30);
+        options.IdleTimeout = TimeSpan.FromMinutes(55);
     });
 
     builder.Services.AddAuthentication(options => {

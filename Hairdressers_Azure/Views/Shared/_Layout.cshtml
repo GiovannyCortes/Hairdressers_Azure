@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/css/common_styles/colors.css" />
     <link rel="stylesheet" href="~/css/common_styles/common.css" />
     <link rel="stylesheet" href="~/css/common_styles/fonts.css" />
+    <link rel="stylesheet" href="~/css/loading.css" />
     @* ================================================== *@
 
     @* =============== ESTILOS DEL LAYOUT =============== *@
@@ -37,6 +38,24 @@
     <script src="~/js/index.global.min.js"></script>
 </head>
 <body>
+    <div class="loadingContainer" style="display: none;">
+        <h1 class="loadingText">
+            Cargando
+            <div class="dots">
+                <span class="dot z"></span>
+                <span class="dot f"></span>
+                <span class="dot s"></span>
+                <span class="dot t">
+                    <span class="dot l"></span>
+                </span>
+            </div>
+        </h1>
+
+        <a asp-controller="Landing" asp-action="Index" class="loadingBack">
+            Forzar la vuelta a la página de inicio
+        </a>
+    </div>
+
     <header>
         <div id="navbar_container" class="shadow">
             <div id="navbar_container_logo">
