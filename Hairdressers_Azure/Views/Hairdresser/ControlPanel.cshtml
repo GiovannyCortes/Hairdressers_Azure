@@ -14,10 +14,10 @@
 
 <div class="background_base bkg_001"></div>
 <div class="mauto">
-    <h5>@Model.Image</h5>
     <h1 class="title_form data">@Model.Name</h1>
     <h1 class="title_form data hide">Editar Peluquería</h1>
     <div class="container_box data">
+        <img src="@Model.Image" class="hairdresser_image" />
         <a asp-controller="Appointments" asp-action="Appointments" asp-route-hairdresserId="@Model.HairdresserId" class="btn_appointments">Gestionar Citas</a>
         <a asp-controller="Hairdresser" asp-action="Services" asp-route-hairdresserId="@Model.HairdresserId" asp-route-hairdresserName="@Model.Name" class="btn_services">
             Gestionar Servicios

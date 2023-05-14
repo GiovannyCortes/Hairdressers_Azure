@@ -164,6 +164,10 @@ function checkScheduleName(schedule_name, schedules) {
     var buttonAddSchedule = $('.schedule_buttons .schedule_btn_add');
     var buttonRemoveSchedule = $('.schedule_buttons .schedule_btn_remove');
     var buttonActivate = $('.schedule_buttons .schedule_btn_activate');
+    var buttonToggleDays = $("select[name='schedule_types']");
+
+    buttonToggleDays.prop('disabled', !exist);
+    buttonToggleDays.toggleClass("disabled", !exist);
 
     buttonAddRows.prop('disabled', !exist);
     buttonAddRows.toggleClass("disabled", !exist);

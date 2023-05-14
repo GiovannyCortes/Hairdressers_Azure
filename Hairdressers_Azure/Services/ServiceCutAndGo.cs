@@ -273,7 +273,7 @@ namespace Hairdressers_Azure.Services {
         
         #region HAIRDRESSERS
         public async Task<Hairdresser?> FindHairdresserAsync(int hairdresser_id) {
-            string request = "/api/Hairdressers/FindHairdressers/" + hairdresser_id;
+            string request = "/api/Hairdressers/FindHairdresser/" + hairdresser_id;
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
             return await this.CallApiAsync<Hairdresser?>(request, contextToken);
         }
@@ -531,13 +531,13 @@ namespace Hairdressers_Azure.Services {
         }
 
         public async Task<List<Service>> GetServicesByHairdresserAsync(int hairdresser_id) {
-            string request = "/api/Services/GetServiceByHairdresser/" + hairdresser_id;
+            string request = "/api/Services/GetServicesByHairdresser/" + hairdresser_id;
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
             return await this.CallApiAsync<List<Service>>(request, contextToken);
         }
 
         public async Task<List<Service>> GetServicesByIdentificationAsync(List<int> app_services) {
-            string request = "/api/Services/GetServiceByHairdresser";
+            string request = "/api/Services/GetServicesByIdentification";
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
 
             string json = JsonConvert.SerializeObject(app_services);

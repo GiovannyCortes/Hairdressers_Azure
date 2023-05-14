@@ -23,9 +23,18 @@ namespace Hairdressers_Azure.Controllers {
             Hairdresser? hairdresser = await this.service.FindHairdresserAsync(hairdresser_id);
             if (hairdresser != null) {
                 List<Schedule> schedules = await this.service.GetSchedulesAsync(hairdresser_id, true);
+
+                // Nota: Crear método directo en la API para no tener que realizar este bucle
+                string activeScheduleName = "";
+                foreach (Schedule schedule in schedules) {
+                    if (schedule.Active) {
+                        activeScheduleName = schedule.Name;
+                    }
+                }
+
                 hairdresser.Image = await this.GetHairdresserImage(hairdresser.Image);
                 ViewData["SCHEDULES"] = schedules;
-                ViewData["FIRST_SCHEDULE"] = (schedules.Count > 0) ? schedules[0].Name : "";
+                ViewData["FIRST_SCHEDULE"] = (schedules.Count > 0) ? activeScheduleName : "";
                 return View(hairdresser);
             } else {
                 ViewData["ERROR_MESSAGE_TITLE"] = "Se ha producido un error inesperado";
@@ -127,7 +136,16 @@ namespace Hairdressers_Azure.Controllers {
             List<Schedule> schedules;
             if (hairdresser_id != 0) {
                 schedules = await this.service.GetSchedulesAsync(hairdresser_id, true);
-                ViewData["FIRST_SCHEDULE"] = schedules[0].Name;
+
+                // Nota: Crear método directo en la API para no tener que realizar este bucle
+                string activeScheduleName = "";
+                foreach (Schedule schedule in schedules) {
+                    if (schedule.Active) {
+                        activeScheduleName = schedule.Name;
+                    }
+                }
+
+                ViewData["FIRST_SCHEDULE"] = activeScheduleName;
             } else {
                 schedules = new List<Schedule>();
             }

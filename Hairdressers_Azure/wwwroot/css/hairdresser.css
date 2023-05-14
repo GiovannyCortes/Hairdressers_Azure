@@ -36,6 +36,7 @@
 #schedules_container {
     display: flex;
     width: 100%;
+    margin-top: 15px;
 }
 
 .form-schedule {
@@ -110,6 +111,14 @@
     transform: translateY(-42%) translateX(-50%);
     cursor: pointer;
     color: #FF4040;
+}
+
+.hairdresser_image {
+    width: 98%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 25px;
+    margin-block: 5px 15px;
 }
 
 /* CHECKBOX STYLE */

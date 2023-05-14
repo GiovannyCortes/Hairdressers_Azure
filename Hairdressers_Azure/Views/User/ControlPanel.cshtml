@@ -26,20 +26,20 @@
                 Editar
             </a>
         </div>
-            <div class="cb_section_2" >
-                @if (peluquerias != null) {
-                    @foreach (Hairdresser hairdresser in peluquerias) {
-                        <a asp-controller="Hairdresser" asp-action="ControlPanel" asp-route-hid="@hairdresser.HairdresserId" class="card card_view">
-                            <h3>@hairdresser.Name</h3>
-                            <p>@hairdresser.Address</p>
-                            <p>@hairdresser.Phone</p>
-                        </a>
-                    }
+        <div class="cb_section_2" >
+            @if (peluquerias != null) {
+                @foreach (Hairdresser hairdresser in peluquerias) {
+                    <a asp-controller="Hairdresser" asp-action="ControlPanel" asp-route-hid="@hairdresser.HairdresserId" class="card card_view">
+                        <h3>@hairdresser.Name</h3>
+                        <p>@hairdresser.Address</p>
+                        <p>@hairdresser.Phone</p>
+                    </a>
                 }
-                <a asp-controller="Hairdresser" asp-action="CreateHairdresser" class="card card_create">
-                    Añadir nueva peluquería
-                </a>
-            </div>
+            }
+            <a asp-controller="Hairdresser" asp-action="CreateHairdresser" class="card card_create">
+                Añadir nueva peluquería
+            </a>
+        </div>
     </div>
 </div>
 
