@@ -1,4 +1,4 @@
-﻿@*@{
+﻿@{
     ViewData["Title"] = "C&G: Nueva Peluquería";
 }
 
@@ -7,11 +7,12 @@
     <h1 class="title_form data">Nueva Peluquería</h1>
     <div class="container_box">
         <input type="text" id="autocomplete" class="form-control autocomplete_box" placeholder="Buscador de peluquerías..."/>
-        <form method="post" id="form_CreateHairdresser" action="CreateHairdresser" class="data" style="margin-top: 10px;">
+        <form method="post" id="form_CreateHairdresser" action="CreateHairdresser" class="data" style="margin-top: 10px;" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <input type="hidden" id="schedules" name="schedules" />
 
             <h3>Información del establecimiento</h3>
+            <label class="login-control registrer-control">Imagen del establecimiento: <input type="file" name="file" /></label>
             <input type="text" name="Name" id="h_name" class="form-control" maxlength="60" placeholder="Nombre" />
             <div class="form_div_flex">
                 <input type="text" id="h_address" name="Address" class="form-control" maxlength="100" placeholder="Dirección" />
@@ -72,6 +73,9 @@
         function executeSubmit() {
             const schedules = collectScheduleData();
             if (schedules.length > 0) {
+                $(".loadingContainer").fadeIn();
+                let dots = $(".dots");
+                animate(dots, "dots--animate");
                 $("#schedules").val(JSON.stringify(schedules));
                 $("#form_CreateHairdresser").submit();
             }
@@ -123,4 +127,4 @@
             });
         }
     </script>
-}*@
+}

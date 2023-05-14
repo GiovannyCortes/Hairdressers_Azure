@@ -12,12 +12,14 @@
     background-color: white;
     border-radius: 110px 25px 25px 110px;
     margin: auto;
-    padding: 10px;
+    padding: 15px;
     width: clamp(400px, 60vw, 1080px);
     overflow: hidden;
     text-align: center;
     display: grid;
     grid-template-areas: "image cb1" "image cb2";
+    grid-gap: 15px;
+    align-items: center;
 }
 
 .user_image {
@@ -25,10 +27,12 @@
     height: 200px;
     grid-area: image;
     object-fit: cover;
+    overflow: hidden;
     border-radius: 50%;
-    background-image: url("../../images/icons/user.png");
+    background-image: url("../../images/icons/user_2.png");
     background-size: cover;
     background-position: center center;
+    background-position-y: 5px;
     background-repeat: no-repeat;
 }
 
@@ -81,7 +85,7 @@
 .card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     width: 90%;
-    /*margin-bottom: 20px;*/
+    margin-bottom: 20px;
     padding: 16px;
     border-radius: 25px;
     text-align: center;

@@ -125,6 +125,7 @@
     @if (IsSectionDefined("calendar_script")) { @RenderSection("calendar_script", false) }
     @if (IsSectionDefined("search_script")) { @RenderSection("search_script", false) }
     @if (IsSectionDefined("service_script")) { @RenderSection("service_script", false) }
+    @if (IsSectionDefined("user_update_script")) { @RenderSection("user_update_script", false) }
     
     <script>
         $(document).ready(function() {
@@ -140,6 +141,16 @@
                 }
             });
         });
+
+        function animate(element, className) {
+            element.addClass(className);
+            setTimeout(() => {
+                element.removeClass(className);
+                setTimeout(() => {
+                    animate(element, className);
+                }, 200);
+            }, 1000);
+        }
     </script>
     <script src="~/js/sweetalert2.all.min.js"></script>
 </body>

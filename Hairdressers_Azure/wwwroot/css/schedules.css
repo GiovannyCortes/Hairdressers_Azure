@@ -127,9 +127,10 @@
     width: calc((calc(clamp(80%, 800px, 100%) - calc(var(--sch_container_padding) * 2)) / 6) - 10px);
     position: absolute;
     margin-top: 10px;
-    border-radius: 15px;
     padding: 5px;
+    border-radius: 15px;
     background-color: whitesmoke;
+    box-shadow: 0 1px 5px 0px rgba(100, 100, 100, 0.5);
 }
 
 .days_label {

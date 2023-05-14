@@ -29,7 +29,10 @@ namespace Hairdressers_Azure.Services {
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
-                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+
+                if (token != null) {
+                    client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                }
 
                 HttpResponseMessage response = await client.GetAsync(request);
                 return response.IsSuccessStatusCode ? await response.Content.ReadAsAsync<T>() : default(T);
@@ -56,18 +59,26 @@ namespace Hairdressers_Azure.Services {
             }
         }
 
-        private async Task<HttpStatusCode> UpdateApiAsync<T>(string request, T objeto, string token) {
+        private async Task<string?> UpdateApiAsync<T>(string request, T objeto, string token) {
             using (HttpClient client = new HttpClient()) {
                 client.BaseAddress = new Uri(this.UrlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
-                client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+
+                if (token != null) {
+                    client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
+                }
 
                 string json = JsonConvert.SerializeObject(objeto);
 
                 StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await client.PutAsync(request, content);
-                return response.StatusCode;
+                if (response.IsSuccessStatusCode) {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    return responseContent;
+                } else {
+                    return null;
+                }
             }
         }
 
@@ -118,22 +129,20 @@ namespace Hairdressers_Azure.Services {
         }
 
         public async Task<bool> UserAssignTokenAsync(int user_id, string token) {
-            string request = "/api/tokens/UserAssignTokenAsync/" + user_id + "/" + token;
+            string request = "/api/tokens/UserAssignToken/" + user_id + "/" + token;
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
             string responseContent = await this.InsertApiAsync<string>(request, null, contextToken);
             return JsonConvert.DeserializeObject<bool>(responseContent);
         }
 
         public async Task<bool> UserValidateTokenAsync(int user_id, string token) {
-            string request = "/api/tokens/UserValidateTokenAsync/" + user_id + "/" + token;
-            string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
-            return await this.CallApiAsync<bool>(request, contextToken);
+            string request = "/api/tokens/UserValidateToken/" + user_id + "/" + token;
+            return await this.CallApiAsync<bool>(request, null);
         }
 
         public async Task<bool> HairdresserValidateTokenAsync(int hairdresser_id, string token) {
-            string request = "/api/tokens/HairdresserValidateTokenAsync/" + hairdresser_id + "/" + token;
-            string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
-            return await this.CallApiAsync<bool>(request, contextToken);
+            string request = "/api/tokens/HairdresserValidateToken/" + hairdresser_id + "/" + token;
+            return await this.CallApiAsync<bool>(request, null);
         }
         #endregion
 
@@ -246,7 +255,7 @@ namespace Hairdressers_Azure.Services {
                 ImageExtension = image_extension
             };
 
-            await this.InsertApiAsync<UserUpdates>(request, user, contextToken);
+            await this.UpdateApiAsync<UserUpdates>(request, user, contextToken);
         }
 
         public async Task DeleteUserAsync(int user_id) {
@@ -255,10 +264,10 @@ namespace Hairdressers_Azure.Services {
             await this.DeleteApiAsync(request, contextToken);
         }
 
-        public async Task ValidateEmailAsync(int user_id) {
-            string request = "/api/users/ValidateEmail/" + user_id;
-            string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
-            await this.UpdateApiAsync<User>(request, null, contextToken);
+        public async Task<int> ValidateEmailAsync(int user_id, string token) {
+            string request = "/api/users/ValidateEmail/" + user_id + "/" + token;
+            string responseContent = await this.UpdateApiAsync<User>(request, null, null);
+            return JsonConvert.DeserializeObject<int>(responseContent);
         }
         #endregion
         
@@ -293,7 +302,7 @@ namespace Hairdressers_Azure.Services {
             return await this.CallApiAsync<List<Hairdresser>>(request, contextToken);
         }
 
-        public async Task InsertHairdresserAsync(string name, string phone, string address, int postal_code, string image_extension, int user_id) {
+        public async Task<int> InsertHairdresserAsync(string name, string phone, string address, int postal_code, string image_extension, int user_id) {
             string request = "/api/Hairdressers/Create";
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
 
@@ -306,7 +315,8 @@ namespace Hairdressers_Azure.Services {
                 UserId = user_id
             };
 
-            await this.InsertApiAsync<HairdresserRegister>(request, hairdresserRegister, contextToken);
+            string responseContent = await this.InsertApiAsync<HairdresserRegister>(request, hairdresserRegister, contextToken);
+            return JsonConvert.DeserializeObject<int>(responseContent);
         }
 
         public async Task UpdateHairdresserAsync(int hairdresser_id, string name, string phone, string address, int postal_code, string image_extension) {
@@ -357,7 +367,7 @@ namespace Hairdressers_Azure.Services {
             return await this.CallApiAsync<List<Schedule>>(request, contextToken);
         }
 
-        public async Task InsertScheduleAsync(int hairdresser_id, string name, bool active) {
+        public async Task<int> InsertScheduleAsync(int hairdresser_id, string name, bool active) {
             string request = "/api/Schedules/Create";
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
 
@@ -367,7 +377,8 @@ namespace Hairdressers_Azure.Services {
                 HairdresserId = hairdresser_id
             };
 
-            await this.InsertApiAsync<ScheduleRegister>(request, scheduleRegister, contextToken);
+            string responseContent = await this.InsertApiAsync<ScheduleRegister>(request, scheduleRegister, contextToken);
+            return JsonConvert.DeserializeObject<int>(responseContent);
         }
 
         public async Task UpdateScheduleAsync(int schedule_id, int hairdresser_id, string name, bool active) {
@@ -384,10 +395,12 @@ namespace Hairdressers_Azure.Services {
             await this.UpdateApiAsync<ScheduleUpdates>(request, scheduleUpdate, contextToken);
         }
 
-        public async Task DeleteScheduleAsync(int schedule_id) {
+        public async Task<int> DeleteScheduleAsync(int schedule_id) {
             string request = "/api/Schedules/Delete/" + schedule_id;
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
             await this.DeleteApiAsync(request, contextToken);
+            Schedule? schedule = await this.FindScheduleAsync(schedule_id, false);
+            return (schedule != null) ? schedule.ScheduleId : 0;
         }
 
         public async Task ActivateScheduleAsync(int hairdresser_id, int schedule_id) {
@@ -416,7 +429,7 @@ namespace Hairdressers_Azure.Services {
             return await this.CallApiAsync<List<Schedule_Row>>(request, contextToken);
         }
 
-        public async Task InsertScheduleRowsAsync(int schid, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) {
+        public async Task<int> InsertScheduleRowsAsync(int schid, TimeSpan start, TimeSpan end, bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) {
             string request = "/api/ScheduleRows/Create";
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
 
@@ -433,7 +446,8 @@ namespace Hairdressers_Azure.Services {
                 Sunday = sun
             };
 
-            await this.InsertApiAsync<Schedule_RowRegister>(request, schedule_RowRegister, contextToken);
+            string responseContent = await this.InsertApiAsync<Schedule_RowRegister>(request, schedule_RowRegister, contextToken);
+            return JsonConvert.DeserializeObject<int>(responseContent);
         }
 
         public async Task DeleteScheduleRowsAsync(int schedule_row_id) {
@@ -546,7 +560,7 @@ namespace Hairdressers_Azure.Services {
         }
 
 
-        public async Task InsertServiceAsync(int hairdresser_id, string name, decimal price, byte duration) {
+        public async Task<int> InsertServiceAsync(int hairdresser_id, string name, decimal price, byte duration) {
             string request = "/api/Services/Create";
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
 
@@ -557,7 +571,8 @@ namespace Hairdressers_Azure.Services {
                 TiempoAprox = duration
             };
 
-            await this.InsertApiAsync<ServiceRegister>(request, serviceRegister, contextToken);
+            string responseContent = await this.InsertApiAsync<ServiceRegister>(request, serviceRegister, contextToken);
+            return JsonConvert.DeserializeObject<int>(responseContent);
         }
 
         public async Task UpdateServiceAsync(int service_id, string name, decimal price, byte duration) {

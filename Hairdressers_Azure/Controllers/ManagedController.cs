@@ -49,7 +49,10 @@ namespace Hairdressers_Azure.Controllers {
 
             if (user != null) { // Usuario encontrado, credenciales correctas
                 await SignInUser(user); // Ejecutamos el LogIn del Usuario
-                await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones
+
+                if (user.Image != null && user.Image != "") {
+                    await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones
+                }
 
                 string controller = TempData["controller"].ToString();
                 string action = TempData["action"].ToString();
@@ -61,11 +64,11 @@ namespace Hairdressers_Azure.Controllers {
             }
         }
 
-        public async Task<IActionResult> LogOut() {
+        public async Task<IActionResult> LogOut(bool toLogIn = false) {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Remove("TOKEN");
             HttpContext.Session.Remove("IMAGE_USER");
-            return RedirectToAction("Index", "Landing");
+            return (toLogIn) ? RedirectToAction("ControlPanel", "User") : RedirectToAction("Index", "Landing");
         }
 
         public IActionResult Registrer() {
@@ -74,17 +77,22 @@ namespace Hairdressers_Azure.Controllers {
 
         [HttpPost] [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registrer(string Password, string Name, string LastName, string Phone, string Email, IFormFile file) {
-            string extension = System.IO.Path.GetExtension(file.FileName);
+            // Si no se carga imagen de usuario se envía null. La BBDD / API insertará una cadena vacía en su lugar y no se guardará foto
+            string? extension = (file == null) ? null : System.IO.Path.GetExtension(file.FileName);
             User? user = await this.service.InsertUserAsync(Name, LastName, Phone, Email, Password, extension);
 
-            string blobName = "user_" + user.UserId + extension;
-            using (Stream stream = file.OpenReadStream()) {
-                await this.serviceBlob.UploadBlobAsync("users", blobName, stream);
+            if (file != null) { // Si no se ha registrado una imagen de usuario no se ejecuta ningún guardado de BLOB
+                string blobName = "user_" + user.UserId + extension;
+                using (Stream stream = file.OpenReadStream()) {
+                    await this.serviceBlob.UploadBlobAsync("users", blobName, stream);
+                }
             }
 
             if (user != null) {
                 await SignInUser(user); // Ejecutamos el LogIn del nuevo Usuario registrado
-                await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones
+                if (file != null) { // No podemos cargar una imagen si no ha registrado una
+                    await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones
+                }
                 return RedirectToAction("ControlPanel", "User"); // Le enviamos al Panel de Control
             }
             return View(""); // Si el registro falla, se mantiene la vista

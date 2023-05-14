@@ -6,7 +6,7 @@
 <div class="background_base bkg_001"></div>
 <div class="mauto">
     <h1 class="title_form">INICIO DE SESIÓN</h1>
-    <form method="post" class="main_forms">
+    <form method="post" onsubmit="return onSubmitClick();" class="main_forms">
         @Html.AntiForgeryToken()
         <label class="login-label" for="email-control-login">Email</label><br />
         <input type="email" id="email-control-login" class="login-control" name="email" maxlength="50" value="giovannyandresch@gmail.com" required />
@@ -24,6 +24,13 @@
 
 @section login_script {
     <script>
+        function onSubmitClick() {
+            $(".loadingContainer").fadeIn();
+            let dots = $(".dots");
+            animate(dots, "dots--animate");
+            return true;
+        }
+
         function VisibilityPassword() {
             var password = $("#password-control-login");
             password.attr("type", (password.attr("type") == "text") ? "password" : "text");

@@ -7,11 +7,15 @@
 <div class="background_base bkg_001"></div>
 <h1 class="title_form">Edición de usuario</h1>
 <div class="container_box mauto">
-    <form method="post">
+    <form method="post" onsubmit="return onSubmitClick();" enctype="multipart/form-data">
         <input type="hidden" name="UserId" value="@Model.UserId" class="form-control" required/>
+
         <input type="text" placeholder="Nombre" name="Name" value="@Model.Name" class="form-control" maxlength="50" required />
         <input type="text" placeholder="Apellidos" name="LastName" value="@Model.LastName" class="form-control" maxlength="50" required/>
         <input type="text" placeholder="Teléfono" name="Phone" value="@Model.Phone" class="form-control" maxlength="20" required />
+
+        <label class="login-control registrer-control">Imagen del usuario: <input type="file" name="file" /></label>
+
         <input type="text" placeholder="Email" name="Email" value="@Model.Email" class="form-control" maxlength="50" required />
         <div class="btn_container_submit_cancel">
             <span></span>
@@ -28,3 +32,14 @@
         </div>
     </form>
 </div>
+
+@section user_update_script {
+    <script>
+        function onSubmitClick() {
+            $(".loadingContainer").fadeIn();
+            let dots = $(".dots");
+            animate(dots, "dots--animate");
+            return true;
+        }
+    </script>
+}

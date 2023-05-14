@@ -5,17 +5,8 @@
 
     /// 1: Usuario encontrado y validado
     /// 2: Usuario encontrado pero no validado
-    /// 3: Usuario NO encontrado
     int? response = (int?)ViewData["RESPONSE"];
-    string message_title = "";
-    if (response == 3) {
-        message_title = "USUARIO NO ENCONTRADO";
-    } else if (response == 2) {
-        message_title = "SE HA PRODUCIDO UN ERROR INESPERADO";
-    } else {
-        message_title = "CUENTA VERIFICADA";
-    }
-
+    string message_title = (response == 2) ? "SE HA PRODUCIDO UN ERROR INESPERADO" : "CUENTA VERIFICADA";
 }
 
 <div class="background_base bkg_001"></div>

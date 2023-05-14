@@ -80,15 +80,5 @@
             }
         };
 
-        function animate(element, className) {
-            element.addClass(className);
-            setTimeout(() => {
-                element.removeClass(className);
-                setTimeout(() => {
-                    animate(element, className);
-                }, 200);
-            }, 1000);
-        }
-
     </script>
 }

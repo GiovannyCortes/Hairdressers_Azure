@@ -74,11 +74,8 @@ async function insertRow(actionsAllowed, apertura = "", cierre = "", daysText = 
         var insertConfirmed = false;
         if (daysText.length > 0) {
             if (actionsAllowed) {
-                var response = await insertBBDDRow(apertura, cierre, daysText, schedule_id);
-                var responseData = JSON.parse(response);
-
-                schedule_row_id = responseData.ResponseId;
-                insertConfirmed = (responseData.ResponseValidation === 0);
+                schedule_row_id = await insertBBDDRow(apertura, cierre, daysText, schedule_id);
+                insertConfirmed = (schedule_row_id !== 0);
             }
 
             if (validateHour(apertura) && validateHour(cierre) && insertConfirmed === actionsAllowed) {

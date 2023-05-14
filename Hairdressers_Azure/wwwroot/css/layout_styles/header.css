@@ -112,13 +112,14 @@
 
 /* ============ ESTILOS DEL MENÚ DE FLOTANTE ============ */
 #navbar_float {
-    position: absolute;
-    transform: translateX(-125px) translateY(15px);
-    background-color: var(--header_navbar_float_bkg);
-    border-radius: 10px;
-    list-style: none;
     width: 150px;
     padding: 0;
+    position: absolute;
+    list-style: none;
+    border-radius: 10px;
+    box-shadow: 0 1px 5px 0px rgba(100, 100, 100, 1);
+    transform: translateX(-125px) translateY(15px);
+    background-color: var(--header_navbar_float_bkg);
 }
 
 #navbar_float_first {

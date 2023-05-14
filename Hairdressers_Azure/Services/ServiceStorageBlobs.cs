@@ -1,4 +1,6 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Specialized;
+using System.ComponentModel;
 
 namespace Hairdressers_Azure.Services {
     public class ServiceStorageBlobs {
@@ -22,7 +24,7 @@ namespace Hairdressers_Azure.Services {
 
         public async Task DeleteBlobAsync(string containerName, string blobName) {
             BlobContainerClient containerClient = this.client.GetBlobContainerClient(containerName);
-            await containerClient.DeleteBlobAsync(blobName);
+            await containerClient.DeleteBlobIfExistsAsync(blobName);
         }
 
         public async Task<BlobContainerClient> GetContainerAsync(string containerName) {
