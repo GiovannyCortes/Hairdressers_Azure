@@ -25,10 +25,10 @@ namespace Hairdressers_Azure.Services {
             await containerClient.DeleteBlobAsync(blobName);
         }
 
-        //public async Task<BlobContainerClient> GetContainerAsync(string containerName) {
-        //    BlobContainerClient container = this.client.GetBlobContainerClient(containerName);
-        //    return container;
-        //}
+        public async Task<BlobContainerClient> GetContainerAsync(string containerName) {
+            BlobContainerClient container = this.client.GetBlobContainerClient(containerName);
+            return container;
+        }
 
     }
 }

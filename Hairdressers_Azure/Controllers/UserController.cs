@@ -1,4 +1,6 @@
-﻿using CutAndGo.Interfaces;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
+using CutAndGo.Interfaces;
 using CutAndGo.Models;
 using Hairdressers_Azure.Filters;
 using Hairdressers_Azure.Helpers;
@@ -9,10 +11,12 @@ namespace Hairdressers_Azure.Controllers {
     public class UserController : Controller {
         
         private ServiceCutAndGo service;
+        private ServiceStorageBlobs serviceBlob;
         private readonly IConfiguration _configuration;
 
-        public UserController(ServiceCutAndGo service, IConfiguration configuration) {
+        public UserController(ServiceCutAndGo service, IConfiguration configuration, ServiceStorageBlobs serviceBlob) {
             this.service = service;
+            this.serviceBlob = serviceBlob;
             _configuration = configuration;
         }
 

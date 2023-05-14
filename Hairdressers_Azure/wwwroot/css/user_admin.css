@@ -8,9 +8,34 @@
     text-align: center;
 }
 
+.user_container_box {
+    background-color: white;
+    border-radius: 110px 25px 25px 110px;
+    margin: auto;
+    padding: 10px;
+    width: clamp(400px, 60vw, 1080px);
+    overflow: hidden;
+    text-align: center;
+    display: grid;
+    grid-template-areas: "image cb1" "image cb2";
+}
+
+.user_image {
+    width: 200px;
+    height: 200px;
+    grid-area: image;
+    object-fit: cover;
+    border-radius: 50%;
+    background-image: url("../../images/icons/user.png");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
 .cb_section_1 {
     display: grid;
-    grid-template-columns: 0.2fr 2fr 1fr 1fr 0.2fr;
+    grid-area: cb1;
+    grid-template-columns: 2fr 1fr 1fr;
     grid-gap: 5px;
     margin-top: 5px;
 }
@@ -41,8 +66,9 @@
 }
 
 .cb_section_2 {
-    margin-top: 15px;
+    /*margin-top: 15px;*/
     display: flex;
+    grid-area: cb2;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -55,7 +81,7 @@
 .card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     width: 90%;
-    margin-bottom: 20px;
+    /*margin-bottom: 20px;*/
     padding: 16px;
     border-radius: 25px;
     text-align: center;
@@ -75,6 +101,7 @@
 
 .card_create {
     font-weight: 700;
+    margin-block: auto;
     background-color: var(--second-blue);
 }
 

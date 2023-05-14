@@ -13,7 +13,7 @@ builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSession(options => {
-        options.IdleTimeout = TimeSpan.FromMinutes(55);
+        options.IdleTimeout = TimeSpan.FromMinutes(30);
     });
 
     builder.Services.AddAuthentication(options => {

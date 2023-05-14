@@ -6,9 +6,9 @@
 <div class="background_base bkg_001"></div>
 <div class="mauto">
     <h1 class="title_form">@Context.User.Identity.Name @Context.User.FindFirstValue("LAST_NAME")</h1>
-    <div class="container_box">
+    <div class="user_container_box">
+        <img src="@Context.Session.GetString("IMAGE_USER")" class="user_image" />
         <div class="cb_section_1">
-            <div></div>
             <p>
                 @Context.User.FindFirstValue("EMAIL")
                 @if (bool.Parse(Context.User.FindFirstValue("EMAIL_CONFIRMED"))) {
@@ -25,7 +25,6 @@
             <a asp-controller="User" asp-action="UpdateUser">
                 Editar
             </a>
-            <div></div>
         </div>
             <div class="cb_section_2" >
                 @if (peluquerias != null) {

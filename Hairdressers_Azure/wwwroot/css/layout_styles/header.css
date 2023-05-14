@@ -68,27 +68,45 @@
     transition-duration: 200ms;
 }
 
-.navbar_list_item:hover {
+.navbar_list_item:not(#navbar_user):hover {
     background-color: var(--header_navbar_list_item_hover_bkg);
+}
+
+.navbar_list_item:hover {
     color: var(--header_navbar_list_item_hover_clr);
     box-shadow: 0 2px 5px 1px rgba(100, 100, 100, 0.8);
 }
 /* ====================================================== */
 
 /* ============ ESTILOS DEL ICONO DE USUARIO ============ */
+.navbar_user_image {
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    object-fit: cover;
+    outline: none;
+    border: 2px solid white;
+    border-radius: 50%;
+    background-color: white;
+    background-image: url("../../images/icons/user_2.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position-y: 5px;
+}
+
 #navbar_user {
-    border: 0;
+    border: 0 !important;
     padding: 0;
     height: 35px;
     width: 35px;
+    overflow: hidden;
 }
 
 #navbar_user:hover {
     cursor: pointer;
 }
 
-#navbar_user:active {
-    border: 1px solid var(--main-blue);
+#navbar_user:focus {
+    outline: none;
 }
 /* ====================================================== */
 

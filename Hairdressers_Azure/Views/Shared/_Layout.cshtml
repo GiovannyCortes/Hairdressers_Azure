@@ -70,7 +70,7 @@
                 <ul class="navbar_list rel_center">
                     <li>
                         <button id="navbar_user" class="navbar_list_item">
-                            <img src="~/images/icons/user.png" style="height: 100%;"/>
+                            <img src="@Context.Session.GetString("IMAGE_USER")" class="navbar_user_image" />
                         </button>
                         <ul id="navbar_float">
                             <partial name="_MenuLogin" />

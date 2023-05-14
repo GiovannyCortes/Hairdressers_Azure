@@ -6,6 +6,8 @@ using System.Security.Claims;
 using Hairdressers_Azure.Services;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
 
 namespace Hairdressers_Azure.Controllers {
     public class ManagedController : Controller {
@@ -47,6 +49,7 @@ namespace Hairdressers_Azure.Controllers {
 
             if (user != null) { // Usuario encontrado, credenciales correctas
                 await SignInUser(user); // Ejecutamos el LogIn del Usuario
+                await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones
 
                 string controller = TempData["controller"].ToString();
                 string action = TempData["action"].ToString();
@@ -61,6 +64,7 @@ namespace Hairdressers_Azure.Controllers {
         public async Task<IActionResult> LogOut() {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Remove("TOKEN");
+            HttpContext.Session.Remove("IMAGE_USER");
             return RedirectToAction("Index", "Landing");
         }
 
@@ -80,6 +84,7 @@ namespace Hairdressers_Azure.Controllers {
 
             if (user != null) {
                 await SignInUser(user); // Ejecutamos el LogIn del nuevo Usuario registrado
+                await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones
                 return RedirectToAction("ControlPanel", "User"); // Le enviamos al Panel de Control
             }
             return View(""); // Si el registro falla, se mantiene la vista
@@ -91,6 +96,25 @@ namespace Hairdressers_Azure.Controllers {
 
         public IActionResult Error() {
             return View();
+        }
+
+        private async Task ChargeImage(string blobName) {
+            if (blobName != null && blobName != "") {
+                BlobContainerClient blobContainerClient = await this.serviceBlob.GetContainerAsync("users");
+                BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
+
+                BlobSasBuilder sasBuilder = new BlobSasBuilder() {
+                    BlobContainerName = "users",
+                    BlobName = blobName,
+                    Resource = "b",
+                    StartsOn = DateTimeOffset.UtcNow,
+                    ExpiresOn = DateTime.UtcNow.AddHours(1),
+                };
+
+                sasBuilder.SetPermissions(BlobSasPermissions.Read);
+                var uri = blobClient.GenerateSasUri(sasBuilder);
+                HttpContext.Session.SetString("IMAGE_USER", uri.ToString());
+            }
         }
 
         private async Task SignInUser(User user) {
@@ -107,6 +131,7 @@ namespace Hairdressers_Azure.Controllers {
             Claim claimUserEmail = new Claim("EMAIL", user.Email);
             Claim claimUserEmailConfirmed = new Claim("EMAIL_CONFIRMED", user.EmailConfirmed.ToString());
             Claim claimUserPhone = new Claim("PHONE", user.Phone);
+            Claim claimUserImage = new Claim("IMAGE", user.Image);
             Claim claimUserRole = new Claim(ClaimTypes.Role, admin);
 
             identity.AddClaim(claimUserID);
@@ -115,6 +140,7 @@ namespace Hairdressers_Azure.Controllers {
             identity.AddClaim(claimUserEmail);
             identity.AddClaim(claimUserEmailConfirmed);
             identity.AddClaim(claimUserPhone);
+            identity.AddClaim(claimUserImage);
             identity.AddClaim(claimUserRole);
 
             ClaimsPrincipal userPrincipal = new ClaimsPrincipal(identity);
