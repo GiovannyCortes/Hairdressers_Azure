@@ -158,7 +158,7 @@
 
             function CreateInfoSwal(title, extprops, start, end, adminPriv, permission, hairdView) {
                 var privilege = adminPriv || permission;
-                var allow_confirm = hairdView && adminPriv;
+                var allow_confirm = hairdView && adminPriv && extprops.appointmentStatus == 0;
                 Swal.fire({
                     html: "<h2 id='mySwal_info_title'>" + title + "</h2>" +
                           "<p class='mySwal_info'>Hora: <b>" + start + "</b> - <b>" + end + "</b></p>" +

@@ -18,6 +18,22 @@ namespace Hairdressers_Azure.Filters {
             TempData["controller"] = controller;
             TempData["action"] = action;
 
+            // Obtención de parámetros para la aprobación de una cita
+            if (context.HttpContext.Request.Query.ContainsKey("token")) {
+                var token = context.HttpContext.Request.Query["token"].FirstOrDefault();
+                TempData["token"] = token;
+            }
+
+            if (context.HttpContext.Request.Query.ContainsKey("hid")) {
+                var hid = context.HttpContext.Request.Query["hid"].FirstOrDefault();
+                TempData["hid"] = hid;
+            }
+
+            if (context.HttpContext.Request.Query.ContainsKey("apid")) {
+                var apid = context.HttpContext.Request.Query["apid"].FirstOrDefault();
+                TempData["apid"] = apid;
+            }
+
             provider.SaveTempData(context.HttpContext, TempData);
 
             if (user.Identity.IsAuthenticated == false) { // Usuario no identificado

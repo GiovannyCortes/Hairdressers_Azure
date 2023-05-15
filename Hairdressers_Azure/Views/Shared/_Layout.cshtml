@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="~/css/services.css" />
     <link rel="stylesheet" href="~/css/suggestions.css" />
     <link rel="stylesheet" href="~/css/schedules.css" />
+    <link rel="stylesheet" href="~/css/userHairdressers.css" />
     @* ================================================== *@
 
     @* ========== ESTILOS DE LOS HTML GENERADOS ========= *@
@@ -37,7 +38,7 @@
     <script src="~/js/jquery-3.6.3.min.js"></script>
     <script src="~/js/index.global.min.js"></script>
 </head>
-<body>
+<body onunload="eliminarDatos()">
     <div class="loadingContainer" style="display: none;">
         <h1 class="loadingText">
             Cargando
@@ -142,6 +143,18 @@
             });
         });
 
+        function getGoogleMapsIframe(address) {
+            const mapUrl = `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(address)}&key=AIzaSyAg4OpucveKYKlYtgmtG5RmCiKJSRCfK9I`;
+            const iframe = $('<iframe></iframe>', {
+                'src': mapUrl,
+                'width': '600',
+                'height': '450',
+                'frameborder': '0',
+                'style': 'border:0'
+            });
+            return iframe;
+        }
+
         function animate(element, className) {
             element.addClass(className);
             setTimeout(() => {
@@ -150,6 +163,14 @@
                     animate(element, className);
                 }, 200);
             }, 1000);
+        }
+
+        function eliminarDatos() {
+            $.ajax({
+                url: "/Managed/DeleteSessionAndCookies",
+                type: "POST",
+                async: false
+            });
         }
     </script>
     <script src="~/js/sweetalert2.all.min.js"></script>

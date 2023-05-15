@@ -1,0 +1,19 @@
+﻿@model List<Hairdresser>
+
+<div class="background_base bkg_001"></div>
+<h1 class="commonTitle">Mis peluquerías</h1>
+
+@if (Model != null) {
+    <div class="list_user_hairdressers">
+        @foreach (Hairdresser hairdresser in Model) {
+            <a asp-controller="Hairdresser" asp-action="ControlPanel" asp-route-hid="@hairdresser.HairdresserId" class="button_suggestions">
+                <span>@hairdresser.Name</span>
+                <p>@hairdresser.Address</p>
+                <p>@hairdresser.Phone</p>
+                <script>
+                    $('a.button_suggestions:last').append(getGoogleMapsIframe(@hairdresser.Name + "," + @hairdresser.Address));
+                </script>
+            </a>
+        }
+    </div>
+}

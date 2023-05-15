@@ -24,14 +24,21 @@ namespace Hairdressers_Azure.Controllers {
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LogIn(string email, string password) {
-            
+        private async Task<string> ExtractAndSaveTokenAsync(string email, string password) {
             // EXTRACCIÓN DEL TOKEN
             string responseToken = await this.service.LogInAsync(email, password);
             dynamic responseObject = JsonConvert.DeserializeObject(responseToken);
             string token = responseObject.response;
+
+            HttpContext.Session.SetString("TOKEN", token);
+            return token;
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LogIn(string email, string password) {
+
+            string token = await this.ExtractAndSaveTokenAsync(email, password);
 
             // EXTRACCIÓN DEL USUARIO DE DICHO TOKEN
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
@@ -44,8 +51,6 @@ namespace Hairdressers_Azure.Controllers {
                 string userDataJson = userDataClaim.Value;
                 user = JsonConvert.DeserializeObject<User?>(userDataJson);
             }
-
-            HttpContext.Session.SetString("TOKEN", token);
 
             if (user != null) { // Usuario encontrado, credenciales correctas
                 await SignInUser(user); // Ejecutamos el LogIn del Usuario
@@ -71,6 +76,19 @@ namespace Hairdressers_Azure.Controllers {
             return (toLogIn) ? RedirectToAction("ControlPanel", "User") : RedirectToAction("Index", "Landing");
         }
 
+        public IActionResult DeleteSessionAndCookies() {
+            // Eliminar la sesión
+            HttpContext.Session.Clear();
+
+            // Eliminar las cookies
+            foreach (var cookie in Request.Cookies.Keys) {
+                Response.Cookies.Delete(cookie);
+            }
+
+            return Json("OK");
+        }
+
+
         public IActionResult Registrer() {
             return View();
         }
@@ -89,6 +107,7 @@ namespace Hairdressers_Azure.Controllers {
             }
 
             if (user != null) {
+                await this.ExtractAndSaveTokenAsync(Email, Password); // Extracción del Token y almacenamiento en Session
                 await SignInUser(user); // Ejecutamos el LogIn del nuevo Usuario registrado
                 if (file != null) { // No podemos cargar una imagen si no ha registrado una
                     await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones

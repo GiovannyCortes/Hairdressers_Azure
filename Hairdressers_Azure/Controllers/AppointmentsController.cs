@@ -115,7 +115,13 @@ namespace Hairdressers_Azure.Controllers {
             return Json("/Appointments/Appointments?hairdresserId=" + appointment.hairdresser_id);
         }
 
+        [AuthorizeUsers]
         public async Task<IActionResult> AppointmentConfirm(string token, int hid, int apid, bool redirect = false) {
+            // Obtener los valores desde TempData
+            token = (token != null) ? token : TempData["token"] as string;
+            hid = (hid != 0) ? hid : Convert.ToInt32(TempData["hid"]);
+            apid = (apid != 0) ? apid : Convert.ToInt32(TempData["apid"]);
+
             bool verification = await this.service.HairdresserValidateTokenAsync(hid, token);
             if (verification) {
                 Appointment? appointment = await this.service.FindAppoinmentAsync(apid);
@@ -126,7 +132,7 @@ namespace Hairdressers_Azure.Controllers {
                     HelperEmailService sender = new HelperEmailService(_configuration);
                     string app_date = appointment.Date.ToString("dd/MM/yyyy");
                     string app_time = appointment.Time.Hours.ToString().PadLeft(2, '0') + ":" + appointment.Time.Minutes.ToString().PadLeft(2, '0');
-                    await sender.SendConfirmationAppointment(user.Email, user.Name + " " + user.LastName, app_date, app_time);
+                    await sender.SendConfirmationAppointment(apid, user.UserId, user.Email, user.Name + " " + user.LastName, app_date, app_time);
 
                     ViewData["USER"] = user;
                     ViewData["APPOINTMENT"] = appointment;
@@ -199,7 +205,8 @@ namespace Hairdressers_Azure.Controllers {
                     description = superUser || user_permission ? "Precio Total: " + price : "",
                     appoinmentId = app.AppointmentId,
                     hairdresserId = app.HairdresserId,
-                    userPermission = user_permission
+                    userPermission = user_permission,
+                    appointmentStatus = (int)app.Status
                 };
 
                 appointments_json.Add(element); // Almacenamos cada elemento en el JSON a devolver

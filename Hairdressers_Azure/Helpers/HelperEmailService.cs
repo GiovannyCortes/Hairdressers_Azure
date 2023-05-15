@@ -104,7 +104,7 @@ namespace Hairdressers_Azure.Helpers {
             await SendMailAsync(destinatario, "Cut&Go: Verificación de cuenta", mensaje);
         }
 
-        public async Task SendConfirmationAppointment(string destinatario, string cliente, string fecha, string hora) {
+        public async Task SendConfirmationAppointment(int appointmentId, int userId, string destinatario, string cliente, string fecha, string hora) {
             string mensaje = $@"
                 <html>
                 <head>
@@ -117,7 +117,7 @@ namespace Hairdressers_Azure.Helpers {
                     <p>
                         Desde <strong>Cut&Go</strong> le informamos que su cita para el día 
                         <strong>{fecha}</strong> a las <strong>{hora}</strong> ha sido confirmada
-                        por parte del establecimiento.
+                        por parte del establecimiento. Su identificador es el #US{userId}AP{appointmentId}
                     </p>
                     <p>Una vez más le damos las gracias por confiar en nuestro servicio y le informamos de que
                        si tiene alguna duda por favor no dude en contactarnos: cutandgo.app@gmail.com</p>

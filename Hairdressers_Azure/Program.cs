@@ -1,6 +1,7 @@
 using Azure.Storage.Blobs;
 using Hairdressers_Azure.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,10 @@ builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
     }).AddCookie();
 
     builder.Services.AddHttpContextAccessor();
+
+    builder.Services.AddAzureClients(factory => {
+        factory.AddSecretClient(builder.Configuration.GetSection("KeyVault"));
+    });
 
     builder.Services.AddTransient<ServiceCutAndGo>();
 

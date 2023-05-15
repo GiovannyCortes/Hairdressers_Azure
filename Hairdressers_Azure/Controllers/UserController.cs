@@ -23,7 +23,8 @@ namespace Hairdressers_Azure.Controllers {
 
         [AuthorizeUsers]
         public async Task<IActionResult> ControlPanel() {
-            ViewData["HAIRDRESSERS"] = await this.service.GetHairdressersAsync();
+            int userId = int.Parse(HttpContext.User.FindFirst("ID").Value);
+            ViewData["HAIRDRESSERS"] = await this.service.GetHairdressersByUserAsync(userId);
             return View();
         }
 
@@ -80,6 +81,13 @@ namespace Hairdressers_Azure.Controllers {
             }
             return RedirectToAction("LogOut", "Managed", new { toLogIn = true });
         }
-        
+
+        [AuthorizeUsers]
+        public async Task<IActionResult> UserHairdressers() {
+            int userId = int.Parse(HttpContext.User.FindFirst("ID").Value);
+            List<Hairdresser> hairdressers = await this.service.GetHairdressersByUserAsync(userId);
+            return View(hairdressers);
+        }
+
     }
 }
