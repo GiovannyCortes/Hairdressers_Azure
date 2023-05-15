@@ -12,49 +12,43 @@
 </div>
 
 @section search_script{
+    <script src="~/js/google_maps.js"></script>
     <script>
-    $(document).ready(function () {
+        $(document).ready(function () {
 
-        $("#hairdresser_search").keyup(function () {
-            var searchString = $("#hairdresser_search").val();
-            if (searchString === "") {
-                $("#hairdresser_suggestions").empty();
-            } else {
-                $.get("/Hairdresser/GetHairdresserSuggestions", { searchString: searchString })
-                .done(function (data) {
-                    var hairdressers = JSON.parse(data);
+            $("#hairdresser_search").keyup(function () {
+                var searchString = $("#hairdresser_search").val();
+                if (searchString === "") {
                     $("#hairdresser_suggestions").empty();
-                    $.each(hairdressers, function (index, value) {
-                        var appointmentLink = $("<a>")
-                            .attr("href", "/Appointments/Appointments?hairdresserId=" + value.HairdresserId)
-                            .addClass("button_suggestions");
+                } else {
+                    $.get("/Hairdresser/GetHairdresserSuggestions", { searchString: searchString })
+                    .done(function (data) {
+                        var hairdressers = JSON.parse(data);
+                        $("#hairdresser_suggestions").empty();
+                        $.each(hairdressers, function (index, value) {
+                            var appointmentLink = $("<a>")
+                                .attr("href", "/Appointments/Appointments?hairdresserId=" + value.HairdresserId)
+                                .addClass("button_suggestions");
 
-                        var titleLink = $("<span>").text(value.Name);
-                        var addressLink = $("<p>").text(value.Address + " (" + value.PostalCode + ")");
-                        var phoneLink = $("<p>").text(value.Phone);
-                        var iframeLink = getGoogleMapsIframe(value.Name + "," + value.Address);
+                            var titleLink = $("<span>").text(value.Name);
+                            var addressLink = $("<p>").text(value.Address + " (" + value.PostalCode + ")");
+                            var phoneLink = $("<p>").text(value.Phone);
 
-                        appointmentLink.append(titleLink, addressLink, phoneLink, iframeLink);
-                        $("#hairdresser_suggestions").append(appointmentLink);
+                            appointmentLink.append(titleLink, addressLink, phoneLink);
+                            $("#hairdresser_suggestions").append(appointmentLink);
+                        });
+
+                        // Resolvemos los mapas de cada elemento generado
+                        $('a.button_suggestions').each(function () {
+                            var newAddress = $(this).data('newaddress');
+                            getGoogleMapsIframe(newAddress, $(this));
+                        });
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        console.log("Error: " + textStatus + " - " + errorThrown);
                     });
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    console.log("Error: " + textStatus + " - " + errorThrown);
-                });
-            }
+                }
+            });
+
         });
-
-        //function getGoogleMapsIframe(address) {
-        //    const mapUrl = `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(address)}&key=AIzaSyAg4OpucveKYKlYtgmtG5RmCiKJSRCfK9I`;
-        //    const iframe = $('<iframe></iframe>', {
-        //        'src': mapUrl,
-        //        'width': '600',
-        //        'height': '450',
-        //        'frameborder': '0',
-        //        'style': 'border:0'
-        //    });
-        //    return iframe;
-        //}
-
-    });
     </script>
 }

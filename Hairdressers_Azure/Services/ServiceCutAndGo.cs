@@ -1,4 +1,5 @@
-﻿using CutAndGo.Models;
+﻿using Azure.Security.KeyVault.Secrets;
+using CutAndGo.Models;
 using Newtonsoft.Json;
 using NugetHairdressersAzure.Models;
 using System.Data;
@@ -11,21 +12,26 @@ namespace Hairdressers_Azure.Services {
     public class ServiceCutAndGo {
 
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private MediaTypeWithQualityHeaderValue Header;
-        private string UrlApi;
+        private MediaTypeWithQualityHeaderValue _header;
+        private string _urlApi;
 
-        public ServiceCutAndGo(IConfiguration configuration, IHttpContextAccessor httpContextAccessor) {
-            this.UrlApi = configuration.GetValue<string>("ApiUrls:ApiCutAndGo");
-            this.Header = new MediaTypeWithQualityHeaderValue("application/json");
+        public ServiceCutAndGo(IHttpContextAccessor httpContextAccessor, SecretClient secretClient) {
             this._httpContextAccessor = httpContextAccessor;
+            this._header = new MediaTypeWithQualityHeaderValue("application/json");
+            this._urlApi = GetUrlApiAsync(secretClient).Result;
+        }
+
+        private static async Task<string> GetUrlApiAsync(SecretClient secretClient) {
+            KeyVaultSecret keyVaultSecret = await secretClient.GetSecretAsync("apicutandgo");
+            return keyVaultSecret.Value;
         }
 
         #region GENERAL TOKEN
         private async Task<T> CallApiAsync<T>(string request, string token) {
             using (HttpClient client = new HttpClient()) {
-                client.BaseAddress = new Uri(this.UrlApi);
+                client.BaseAddress = new Uri(this._urlApi);
                 client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Accept.Add(this._header);
 
                 if (token != null) {
                     client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
@@ -38,9 +44,9 @@ namespace Hairdressers_Azure.Services {
 
         private async Task<string?> InsertApiAsync<T>(string request, T objeto, string token) {
             using (HttpClient client = new HttpClient()) {
-                client.BaseAddress = new Uri(this.UrlApi);
+                client.BaseAddress = new Uri(this._urlApi);
                 client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Accept.Add(this._header);
                 client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
 
                 string json = JsonConvert.SerializeObject(objeto);
@@ -58,9 +64,9 @@ namespace Hairdressers_Azure.Services {
 
         private async Task<string?> UpdateApiAsync<T>(string request, T objeto, string token) {
             using (HttpClient client = new HttpClient()) {
-                client.BaseAddress = new Uri(this.UrlApi);
+                client.BaseAddress = new Uri(this._urlApi);
                 client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Accept.Add(this._header);
 
                 if (token != null) {
                     client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
@@ -82,7 +88,7 @@ namespace Hairdressers_Azure.Services {
         // Se supone que en el request ya va el id. Ejemplo: http:/localhost/api/deletealgo/17
         private async Task<HttpStatusCode> DeleteApiAsync(string request, string token) {
             using (HttpClient client = new HttpClient()) {
-                client.BaseAddress = new Uri(this.UrlApi);
+                client.BaseAddress = new Uri(this._urlApi);
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
 
@@ -92,7 +98,7 @@ namespace Hairdressers_Azure.Services {
         }
         #endregion
 
-
+        #region LOGIN
         public async Task<string> LogInAsync(string email, string password) {
             LogIn login = new LogIn { 
                 UserMail = email,
@@ -104,9 +110,9 @@ namespace Hairdressers_Azure.Services {
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
             using (HttpClient client = new HttpClient()) {
-                client.BaseAddress = new Uri(this.UrlApi);
+                client.BaseAddress = new Uri(this._urlApi);
                 client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Accept.Add(this._header);
 
                 HttpResponseMessage response = await client.PostAsync(request, content);
                 if (response.IsSuccessStatusCode) {
@@ -117,6 +123,7 @@ namespace Hairdressers_Azure.Services {
                 }
             }
         }
+        #endregion
 
         #region TOKENS
         public async Task<string> GenerateToken() {
@@ -542,11 +549,11 @@ namespace Hairdressers_Azure.Services {
             string base64Json = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
 
             // agregar el cuerpo codificado en base64 como parte de la URL
-            string url = $"{this.UrlApi}{request}?json={base64Json}";
+            string url = $"{this._urlApi}{request}?json={base64Json}";
 
             using (HttpClient client = new HttpClient()) {
                 client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(this.Header);
+                client.DefaultRequestHeaders.Accept.Add(this._header);
                 client.DefaultRequestHeaders.Add("Authorization", "bearer " + contextToken);
 
                 // crear la solicitud GET con el cuerpo codificado en base64 en la URL

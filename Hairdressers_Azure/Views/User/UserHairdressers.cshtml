@@ -7,7 +7,7 @@
     <div class="list_user_hairdressers">
         @foreach (Hairdresser hairdresser in Model) {
             string newAddress = hairdresser.Name + ", " + hairdresser.Address;
-            <a asp-controller="Hairdresser" asp-action="ControlPanel" asp-route-hid="@hairdresser.HairdresserId" class="button_suggestions" data-address="@newAddress">
+            <a asp-controller="Hairdresser" asp-action="ControlPanel" asp-route-hid="@hairdresser.HairdresserId" class="button_suggestions" data-newaddress="@newAddress">
                 <span>@hairdresser.Name</span>
                 <p>@hairdresser.Address</p>
                 <p>@hairdresser.Phone</p>
@@ -19,9 +19,11 @@
 @section userHairdresser {
     <script src="~/js/google_maps.js"></script>
     <script>
-        $('a.button_suggestions').each(function () {
-            var address = $(this).data('address');
-            getGoogleMapsIframe(address);
+        $(document).ready(function () {
+            $('a.button_suggestions').each(function () {
+                var newAddress = $(this).data('newaddress');
+                getGoogleMapsIframe(newAddress, $(this));
+            });
         });
     </script>
 }

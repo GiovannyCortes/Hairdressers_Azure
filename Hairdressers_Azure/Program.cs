@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using Hairdressers_Azure.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -5,10 +7,18 @@ using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Blobs
-string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAccount");
-BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
-builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
+// Obtener valor del secreto de Azure Key Vault para los Nuevos Blobs
+string keyVaultUrl = builder.Configuration["KeyVault:VaultUri"];
+SecretClient secretClient = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+KeyVaultSecret azureKeys = await secretClient.GetSecretAsync("storagecutandgo");
+
+BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys.Value);
+    builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
+
+// Old Blobs 
+// string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAccount");
+// BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
+// builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 
     builder.Services.AddTransient<ServiceStorageBlobs>();
 
