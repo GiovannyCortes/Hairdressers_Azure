@@ -1,16 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CutAndGo.Models;
+using Hairdressers_Azure.Filters;
+using Hairdressers_Azure.Helpers;
+using Hairdressers_Azure.Models;
+using Hairdressers_Azure.Services;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security.Claims;
 
 namespace Hairdressers_Azure.Controllers {
     public class AppointmentsController : Controller {
-        /*
+        
+        private ServiceCutAndGo service;
         private readonly IConfiguration _configuration;
-        private IRepositoryHairdresser repo;
 
-        public AppointmentsController(IRepositoryHairdresser repo, IConfiguration configuration) {
-            this.repo = repo;
+        public AppointmentsController(ServiceCutAndGo service, IConfiguration configuration) {
+            this.service = service;
             _configuration = configuration;
         }
 
@@ -24,7 +29,6 @@ namespace Hairdressers_Azure.Controllers {
          *  en caché un validador para no recuperar en varias ocasiones la validación de la relación user-hairdresser)
          */
 
-        /*
         [AuthorizeUsers]
         public async Task<IActionResult> Appointments(int? hairdresserId) {
             List<Appointment> appointments;
@@ -41,27 +45,27 @@ namespace Hairdressers_Azure.Controllers {
 
                 hairdresser_view = true;
                 if (HttpContext.User.FindFirst(ClaimTypes.Role).Value == "ADMIN") {
-                    administrator_privileges = await repo.AdminExistAsync(hairdresserId.Value, user_id);
+                    administrator_privileges = await this.service.AdminExistAsync(hairdresserId.Value, user_id);
                 } else {
                     administrator_privileges = false;
                 }
 
                 // Recuperamos la peluquería
-                hairdresser = await repo.FindHairdresserAsync(hairdresserId.Value);
+                hairdresser = await this.service.FindHairdresserAsync(hairdresserId.Value);
 
                 // Listamos su horario activo para fijarlo como horario laboral
-                List<Schedule_Row> schedule_rows = await repo.GetActiveScheduleRowsAsync(hairdresserId.Value);
+                List<Schedule_Row> schedule_rows = await this.service.GetActiveScheduleRowsAsync(hairdresserId.Value);
                 bussines_hours = HelperCalendar.GetBussinesHours(schedule_rows);
 
                 // Listamos los servicios de la peluquería
-                services = await repo.GetServicesByHairdresserAsync(hairdresserId.Value);
+                services = await this.service.GetServicesByHairdresserAsync(hairdresserId.Value);
 
                 // Listamos las citas de la peluquería
-                appointments = await repo.GetAppointmentsByHairdresserAsync(hairdresserId.Value);
+                appointments = await this.service.GetAppointmentsByHairdresserAsync(hairdresserId.Value);
 
             } else { // Se solicitan datos de citas de Usuario
                 administrator_privileges = true;
-                appointments = await repo.GetAppointmentsByUserAsync(user_id);
+                appointments = await this.service.GetAppointmentsByUserAsync(user_id);
             }
 
             // La lista recuperada es transformada y enviada a la vista para su representación
@@ -70,7 +74,7 @@ namespace Hairdressers_Azure.Controllers {
             ViewData["SERVICES"] = services != null && services.Count > 0 ? HelperJson.SerializeObject(services) : null;
             ViewData["BUSSINESS_HOURS"] = bussines_hours;
             ViewData["JSON_APPOINTMENTS"] = HelperJson.SerializeObject(appointments_json);
-            ViewData["USER"] = await repo.FindUserAsync(user_id);
+            ViewData["USER"] = await this.service.FindUserAsync(user_id);
             TempData["ADMIN_PRIV"] = administrator_privileges;
             TempData["HAIRDRESSER_VIEW"] = hairdresser_view;
             return View();
@@ -82,20 +86,19 @@ namespace Hairdressers_Azure.Controllers {
             GetCalendarAppointment appointment = JsonConvert.DeserializeObject<GetCalendarAppointment>(mydata);
 
             // Creación de la cita y recogida de servicios
-            int appointment_id = await repo.InsertAppointmentAsync(appointment.user_id, appointment.hairdresser_id, appointment.date, appointment.time);
+            int appointment_id = await this.service.InsertAppointmentAsync(appointment.user_id, appointment.hairdresser_id, appointment.date, appointment.time);
 
             List<string> services = new List<string>();
             decimal full_cost_services = 0;
             foreach (int service_id in appointment.services) {
-                await repo.InsertAppointmentServiceAsync(appointment_id, service_id);
-                Service service = await repo.FindServiceAsync(service_id);
+                await this.service.InsertAppointmentServiceAsync(appointment_id, service_id);
+                Service service = await this.service.FindServiceAsync(service_id);
                 services.Add(service.Name);
                 full_cost_services += service.Price;
             }
 
             // Recogida del resto de datos para el email
-            string concat_emails = await repo.GetHairdresserEmailsAsync(appointment.hairdresser_id);
-            string[] emails = concat_emails.Split(',');
+            List<string> emails = await this.service.GetHairdresserEmailsAsync(appointment.hairdresser_id);
 
             string user_name = HttpContext.User.Identity.Name + " " + HttpContext.User.FindFirst("LAST_NAME").Value;
             string user_email = HttpContext.User.FindFirst("EMAIL").Value;
@@ -105,7 +108,7 @@ namespace Hairdressers_Azure.Controllers {
 
             // Envío del correo de confirmación
             HelperEmailService sender = new HelperEmailService(_configuration);
-            Hairdresser hairdresser = await repo.FindHairdresserAsync(appointment.hairdresser_id);
+            Hairdresser hairdresser = await this.service.FindHairdresserAsync(appointment.hairdresser_id);
             await sender.SendTemplateRequestAppointment(emails, user_name, user_email, app_date, app_time, services,
                                                         full_cost_services, hairdresser.Token, hairdresser.HairdresserId, appointment_id);
 
@@ -113,12 +116,12 @@ namespace Hairdressers_Azure.Controllers {
         }
 
         public async Task<IActionResult> AppointmentConfirm(string token, int hid, int apid, bool redirect = false) {
-            bool verification = await repo.CompareHairdresserTokenAsync(hid, token);
+            bool verification = await this.service.HairdresserValidateTokenAsync(hid, token);
             if (verification) {
-                Appointment? appointment = await repo.FindAppoinmentAsync(apid);
+                Appointment? appointment = await this.service.FindAppoinmentAsync(apid);
                 if (appointment != null) {
-                    await repo.ApproveAppointmentAsync(apid);
-                    User? user = await repo.FindUserAsync(appointment.UserId);
+                    await this.service.ApproveAppointmentAsync(apid);
+                    User? user = await this.service.FindUserAsync(appointment.UserId);
 
                     HelperEmailService sender = new HelperEmailService(_configuration);
                     string app_date = appointment.Date.ToString("dd/MM/yyyy");
@@ -141,7 +144,7 @@ namespace Hairdressers_Azure.Controllers {
         [HttpPost]
         [AuthorizeUsers]
         public async Task<IActionResult> DeleteAppointment(string idAppoinment, string hairdresser_id) {
-            await repo.DeleteAppointmentAsync(int.Parse(idAppoinment));
+            await this.service.DeleteAppointmentAsync(int.Parse(idAppoinment));
             return Json("/Appointments/Appointments?hairdresserId=" + hairdresser_id);
         }
 
@@ -155,8 +158,8 @@ namespace Hairdressers_Azure.Controllers {
             foreach (Appointment app in appointments) { // Recorremos las citas encontradas en la peluquería
                 bool user_permission = app.UserId == user_id; // Si son datos de mis propias citas si que puedo verlas
 
-                User? user = superUser || user_permission ? await repo.FindUserAsync(app.UserId) : null;
-                List<Service> services = await repo.GetServicesByAppointmentAsync(app.AppointmentId);
+                User? user = superUser || user_permission ? await this.service.FindUserAsync(app.UserId) : null;
+                List<Service> services = await this.service.GetServicesByAppointmentAsync(app.AppointmentId);
 
                 int timeAprox = GetMinutesByAppointment(services);
                 string price = superUser || user_permission ? GetTotalPriceByAppointment(services) : "";
@@ -224,6 +227,6 @@ namespace Hairdressers_Azure.Controllers {
             }
             return price.ToString() + " €";
         }
-        */
+        
     }
 }

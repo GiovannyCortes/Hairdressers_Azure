@@ -1,4 +1,4 @@
-﻿@*@{
+﻿@{
     ViewData["TITLE"] = "C&G: Citas";
     string json_appointments = ViewData["JSON_APPOINTMENTS"] as string;
     string regexPattern = "\"([^\"]+)\":";
@@ -33,7 +33,7 @@
     bool hairdresser_view = (bool)TempData["HAIRDRESSER_VIEW"];
 }
 
-<div id="background"></div>
+<div class="background_base bkg_001"></div>
 <h1 class="commonTitle">Citas de '@((hairdresser != null) ? hairdresser.Name : current_user.Name)'</h1>
 <div id='calendar' style="background-color: white;"></div>
 
@@ -369,4 +369,3 @@
 
     </script>
 }
-*@

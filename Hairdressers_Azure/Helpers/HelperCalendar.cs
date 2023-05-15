@@ -1,6 +1,8 @@
-﻿namespace Hairdressers_Azure.Helpers {
+﻿using CutAndGo.Models;
+
+namespace Hairdressers_Azure.Helpers {
     public static class HelperCalendar {
-        /*
+        
         public static string GetBussinesHours(List<Schedule_Row> schedulesRows) {
             // Se almacenará en el siguiente string, el JSON con las horas de negocio
             string bussinesHoursList = "[";
@@ -29,11 +31,11 @@
                         AddDayOfWeekToList(daysOfWeek, scheduleRow);
                     } else {
                         // Si el inicio del rango actual es diferente al inicio del objeto actual, añadimos un nuevo objeto
-                        bussinesHoursList += @"{
-                                                    daysOfWeek = " + daysOfWeek.ToString() + "," +
-                                                    "startTime = " + currentRangeStart.ToString(@"hh\:mm") + "," +
-                                                    "endTime = " + currentRangeEnd.ToString(@"hh\:mm") +
-                                               "}";
+                        bussinesHoursList += @"{"+
+                                                    "daysOfWeek: [" + string.Join<int>(",", daysOfWeek) + "]," +
+                                                    "startTime: '" + currentRangeStart.ToString(@"hh\:mm") + "'," +
+                                                    "endTime: '" + currentRangeEnd.ToString(@"hh\:mm") + "'" +
+                                               "},";
 
                         // Inicializar el rango actual con los valores del objeto actual
                         currentRangeStart = scheduleRow.Start;
@@ -48,11 +50,11 @@
 
             // Si todavía hay un rango actual sin procesar, agregarlo a la lista
             if (currentRangeStart != TimeSpan.Zero && currentRangeEnd != TimeSpan.Zero) {
-                bussinesHoursList += @"{
-                                            daysOfWeek = " + daysOfWeek.ToString() + "," +
-                                            "startTime = " + currentRangeStart.ToString(@"hh\:mm") + "," +
-                                            "endTime = " + currentRangeEnd.ToString(@"hh\:mm") +
-                                     "}";
+                bussinesHoursList += @"{" +
+                                            "daysOfWeek: [" + string.Join<int>(",", daysOfWeek) + "]," +
+                                            "startTime: '" + currentRangeStart.ToString(@"hh\:mm") + "'," +
+                                            "endTime: '" + currentRangeEnd.ToString(@"hh\:mm") + "'" +
+                                     "},";
             }
 
             return bussinesHoursList + "]";
@@ -68,6 +70,6 @@
             if (scheduleRow.Saturday)   daysOfWeek.Add(6);
             if (scheduleRow.Sunday)     daysOfWeek.Add(7);
         }
-        */
+        
     }
 }

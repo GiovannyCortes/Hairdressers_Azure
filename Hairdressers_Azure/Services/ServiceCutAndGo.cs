@@ -1,14 +1,11 @@
 ﻿using CutAndGo.Models;
 using Newtonsoft.Json;
-using NuGet.Common;
 using NugetHairdressersAzure.Models;
-using System;
 using System.Data;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Xml.Linq;
-using static CutAndGo.Interfaces.IRepositoryHairdresser;
+
 
 namespace Hairdressers_Azure.Services {
     public class ServiceCutAndGo {
@@ -279,7 +276,7 @@ namespace Hairdressers_Azure.Services {
         }
 
         public async Task<List<string>> GetHairdresserEmailsAsync(int hairdresser_id) {
-            string request = "/api/Hairdressers/GetHairdressersEmails/" + hairdresser_id;
+            string request = "/api/Hairdressers/GetHairdresserEmails/" + hairdresser_id;
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
             return await this.CallApiAsync<List<string>>(request, contextToken);
         }
@@ -447,7 +444,7 @@ namespace Hairdressers_Azure.Services {
             };
 
             string responseContent = await this.InsertApiAsync<Schedule_RowRegister>(request, schedule_RowRegister, contextToken);
-            return JsonConvert.DeserializeObject<int>(responseContent);
+            return (responseContent != null) ? JsonConvert.DeserializeObject<int>(responseContent) : -1;
         }
 
         public async Task DeleteScheduleRowsAsync(int schedule_row_id) {
@@ -476,7 +473,7 @@ namespace Hairdressers_Azure.Services {
             return await this.CallApiAsync<List<Appointment>>(request, contextToken);
         }
 
-        public async Task InsertAppointmentAsync(int user_id, int hairdresser_id, DateTime date, TimeSpan time) {
+        public async Task<int> InsertAppointmentAsync(int user_id, int hairdresser_id, DateTime date, TimeSpan time) {
             string request = "/api/Appointments/Create";
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
 
@@ -487,7 +484,8 @@ namespace Hairdressers_Azure.Services {
                 Time = time
             };
 
-            await this.InsertApiAsync<AppointmentRegister>(request, appointmentRegister, contextToken);
+            string responseContent = await this.InsertApiAsync<AppointmentRegister>(request, appointmentRegister, contextToken);
+            return JsonConvert.DeserializeObject<int>(responseContent);
         }
 
         public async Task UpdateAppointmentAsync(int appointment_id, DateTime date, TimeSpan time, StatusAppointment status) {
@@ -525,7 +523,7 @@ namespace Hairdressers_Azure.Services {
         }
 
         public async Task<List<Service>> GetServicesByAppointmentAsync(int appointment_id) {
-            string request = "/api/Services/GetServiceByAppointment/" + appointment_id;
+            string request = "/api/Services/GetServicesByAppointment/" + appointment_id;
             string contextToken = _httpContextAccessor.HttpContext.Session.GetString("TOKEN");
             return await this.CallApiAsync<List<Service>>(request, contextToken);
         }

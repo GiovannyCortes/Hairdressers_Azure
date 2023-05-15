@@ -53,13 +53,18 @@ async function insertRow(actionsAllowed, apertura = "", cierre = "", daysText = 
         apertura = (apertura === "") ? $("input[name='newStart']").val() : apertura;
         cierre = (cierre === "") ? $("input[name='newEnd']").val() : cierre;
 
+        /* Esta nueva variable es un apaño temporal para la correcta importación de los días en la BBDD */
+        let daysImport = "";
+
         if (daysText === "") {
             switch (type) {
                 case "1":
                     daysText = "De Lunes a Domingo";
+                    daysImport = "L M X J V S D";
                     break;
                 case "2":
                     daysText = "De Lunes a Viernes";
+                    daysImport = "L M X J V";
                     break;
                 case "3":
                     let checkedValues = "";
@@ -67,6 +72,7 @@ async function insertRow(actionsAllowed, apertura = "", cierre = "", daysText = 
                         checkedValues += $(this).val() + " ";
                     });
                     daysText = checkedValues.trim();
+                    daysImport = checkedValues.trim();
                     break;
             }
         }
@@ -74,8 +80,8 @@ async function insertRow(actionsAllowed, apertura = "", cierre = "", daysText = 
         var insertConfirmed = false;
         if (daysText.length > 0) {
             if (actionsAllowed) {
-                schedule_row_id = await insertBBDDRow(apertura, cierre, daysText, schedule_id);
-                insertConfirmed = (schedule_row_id !== 0);
+                schedule_row_id = await insertBBDDRow(apertura, cierre, daysImport, schedule_id);
+                insertConfirmed = (schedule_row_id !== -1);
             }
 
             if (validateHour(apertura) && validateHour(cierre) && insertConfirmed === actionsAllowed) {
@@ -105,6 +111,11 @@ async function insertRow(actionsAllowed, apertura = "", cierre = "", daysText = 
                     $("table.schedule_table tbody tr td .schedule_btn_add").prop('disabled', true);
                     $("table.schedule_table tbody tr td .schedule_btn_add").toggleClass("disabled", true);
                 }
+
+                // Una vez se ha realizado una insercción, no es recomendable modificar el filtro de días
+                var buttonToggleDays = $("select[name='schedule_types']");
+                    buttonToggleDays.prop('disabled', true);
+                    buttonToggleDays.toggleClass("disabled", true);
             }
         }
 
@@ -166,8 +177,8 @@ function checkScheduleName(schedule_name, schedules) {
     var buttonActivate = $('.schedule_buttons .schedule_btn_activate');
     var buttonToggleDays = $("select[name='schedule_types']");
 
-    buttonToggleDays.prop('disabled', !exist);
-    buttonToggleDays.toggleClass("disabled", !exist);
+    buttonToggleDays.prop('disabled', !exist || (exist && schedules.length != 0));
+    buttonToggleDays.toggleClass("disabled", !exist || (exist && schedules.length != 0));
 
     buttonAddRows.prop('disabled', !exist);
     buttonAddRows.toggleClass("disabled", !exist);

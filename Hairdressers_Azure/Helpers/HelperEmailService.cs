@@ -128,7 +128,7 @@ namespace Hairdressers_Azure.Helpers {
         }
 
         public async Task SendTemplateRequestAppointment
-            (string[] destinatarios, string cliente, string email, string fecha, string hora,
+            (List<string> destinatarios, string cliente, string email, string fecha, string hora,
             List<string> servicios, decimal coste, string token, int hairdresser_id, int appointment_id) {
 
             string services = "";
