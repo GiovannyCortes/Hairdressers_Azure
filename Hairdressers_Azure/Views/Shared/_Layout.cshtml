@@ -127,6 +127,7 @@
     @if (IsSectionDefined("search_script")) { @RenderSection("search_script", false) }
     @if (IsSectionDefined("service_script")) { @RenderSection("service_script", false) }
     @if (IsSectionDefined("user_update_script")) { @RenderSection("user_update_script", false) }
+    @if (IsSectionDefined("userHairdresser")) { @RenderSection("userHairdresser", false) }
     
     <script>
         $(document).ready(function() {
@@ -142,18 +143,6 @@
                 }
             });
         });
-
-        function getGoogleMapsIframe(address) {
-            const mapUrl = `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(address)}&key=AIzaSyAg4OpucveKYKlYtgmtG5RmCiKJSRCfK9I`;
-            const iframe = $('<iframe></iframe>', {
-                'src': mapUrl,
-                'width': '600',
-                'height': '450',
-                'frameborder': '0',
-                'style': 'border:0'
-            });
-            return iframe;
-        }
 
         function animate(element, className) {
             element.addClass(className);
