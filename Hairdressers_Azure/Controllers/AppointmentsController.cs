@@ -1,4 +1,5 @@
-﻿using CutAndGo.Models;
+﻿using Azure.Security.KeyVault.Secrets;
+using CutAndGo.Models;
 using Hairdressers_Azure.Filters;
 using Hairdressers_Azure.Helpers;
 using Hairdressers_Azure.Models;
@@ -12,11 +13,11 @@ namespace Hairdressers_Azure.Controllers {
     public class AppointmentsController : Controller {
         
         private ServiceCutAndGo service;
-        private readonly IConfiguration _configuration;
+        private SecretClient secretClient;
 
-        public AppointmentsController(ServiceCutAndGo service, IConfiguration configuration) {
+        public AppointmentsController(ServiceCutAndGo service, SecretClient secretClient) {
             this.service = service;
-            _configuration = configuration;
+            this.secretClient = secretClient;
         }
 
         /*
@@ -107,7 +108,7 @@ namespace Hairdressers_Azure.Controllers {
             string app_time = appointment.time.Hours.ToString().PadLeft(2, '0') + ":" + appointment.time.Minutes.ToString().PadLeft(2, '0');
 
             // Envío del correo de confirmación
-            HelperEmailService sender = new HelperEmailService(_configuration);
+            HelperEmailService sender = new HelperEmailService(this.secretClient);
             Hairdresser hairdresser = await this.service.FindHairdresserAsync(appointment.hairdresser_id);
             await sender.SendTemplateRequestAppointment(emails, user_name, user_email, app_date, app_time, services,
                                                         full_cost_services, hairdresser.Token, hairdresser.HairdresserId, appointment_id);
@@ -129,7 +130,7 @@ namespace Hairdressers_Azure.Controllers {
                     await this.service.ApproveAppointmentAsync(apid);
                     User? user = await this.service.FindUserAsync(appointment.UserId);
 
-                    HelperEmailService sender = new HelperEmailService(_configuration);
+                    HelperEmailService sender = new HelperEmailService(this.secretClient);
                     string app_date = appointment.Date.ToString("dd/MM/yyyy");
                     string app_time = appointment.Time.Hours.ToString().PadLeft(2, '0') + ":" + appointment.Time.Minutes.ToString().PadLeft(2, '0');
                     await sender.SendConfirmationAppointment(apid, user.UserId, user.Email, user.Name + " " + user.LastName, app_date, app_time);

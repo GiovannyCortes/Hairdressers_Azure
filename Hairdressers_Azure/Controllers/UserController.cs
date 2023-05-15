@@ -1,24 +1,21 @@
-﻿using Azure.Storage.Blobs;
-using Azure.Storage.Sas;
-using CutAndGo.Interfaces;
+﻿using Azure.Security.KeyVault.Secrets;
 using CutAndGo.Models;
 using Hairdressers_Azure.Filters;
 using Hairdressers_Azure.Helpers;
 using Hairdressers_Azure.Services;
 using Microsoft.AspNetCore.Mvc;
-using NugetHairdressersAzure.Models;
 
 namespace Hairdressers_Azure.Controllers {
     public class UserController : Controller {
         
         private ServiceCutAndGo service;
         private ServiceStorageBlobs serviceBlob;
-        private readonly IConfiguration _configuration;
+        private readonly SecretClient secretClient;
 
-        public UserController(ServiceCutAndGo service, IConfiguration configuration, ServiceStorageBlobs serviceBlob) {
+        public UserController(ServiceCutAndGo service, SecretClient secretClient, ServiceStorageBlobs serviceBlob) {
             this.service = service;
             this.serviceBlob = serviceBlob;
-            this._configuration = configuration;
+            this.secretClient = secretClient;
         }
 
         [AuthorizeUsers]
@@ -37,7 +34,7 @@ namespace Hairdressers_Azure.Controllers {
             string token = await this.service.GenerateToken() + userId;
 
             await service.UserAssignTokenAsync(userId, token);
-            await new HelperEmailService(this._configuration).SendTemplateVerificationEmailAsync(email, name + " " + lastName, token);
+            await new HelperEmailService(this.secretClient).SendTemplateVerificationEmailAsync(email, name + " " + lastName, token);
             return Json("OK");
         }
 

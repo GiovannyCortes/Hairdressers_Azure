@@ -1,63 +1,44 @@
-﻿using System.Net;
+﻿using Azure.Security.KeyVault.Secrets;
+using Newtonsoft.Json;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Mail;
+using System.Text;
 
 namespace Hairdressers_Azure.Helpers {
     public class HelperEmailService {
 
-        private IConfiguration configuration;
+        private MediaTypeWithQualityHeaderValue Header;
         private string image_url;
-        private string local;
+        private string cutandgo_website;
+        private string emailscutandgo;
 
-        public HelperEmailService(IConfiguration configuration) {
-            this.configuration = configuration;
-            image_url = "https://live.staticflickr.com/65535/52768172074_803947c193_h.jpg";
-            local = "https://localhost:7064";
+        public HelperEmailService(SecretClient secretClient) {
+            this.Header = new MediaTypeWithQualityHeaderValue("application/json");
+            this.image_url = GetSecretAsync(secretClient, "cutandgocardimage").Result;
+            this.cutandgo_website = GetSecretAsync(secretClient, "cutandgowebsite").Result;
+            this.emailscutandgo = GetSecretAsync(secretClient, "emailscutandgo").Result;
         }
 
-        private MailMessage ConfigureMailMessage(string destinatario, string asunto, string mensaje) {
-            string email = configuration.GetValue<string>("MailSettings:Credentials:User");
-            MailMessage mailMessage = new MailMessage();
-                        mailMessage.From = new MailAddress(email);
-                        mailMessage.To.Add(new MailAddress(destinatario));
-                        mailMessage.Subject = asunto;
-                        mailMessage.Body = mensaje;
-                        mailMessage.IsBodyHtml = true;
-            return mailMessage;
-        }
-
-        private SmtpClient ConfigureSmtpClient() {
-            string user = configuration.GetValue<string>("MailSettings:Credentials:User");
-            string password = configuration.GetValue<string>("MailSettings:Credentials:Password");
-
-            int port = configuration.GetValue<int>("MailSettings:Smtp:Port");
-            string host = configuration.GetValue<string>("MailSettings:Smtp:Host");
-
-            bool enableSSL = configuration.GetValue<bool>("MailSettings:Smtp:EnableSSL");
-            bool defaultCredentials = configuration.GetValue<bool>("MailSettings:Smtp:DefaultCredentials");
-
-            SmtpClient client = new SmtpClient();
-            client.Port = port;
-            client.Host = host;
-            client.EnableSsl = enableSSL;
-            client.UseDefaultCredentials = defaultCredentials;
-
-            NetworkCredential credentials = new NetworkCredential(user, password);
-            client.Credentials = credentials;
-            return client;
+        private static async Task<string> GetSecretAsync(SecretClient secretClient, string secretName) {
+            KeyVaultSecret keyVaultSecret = await secretClient.GetSecretAsync(secretName);
+            return keyVaultSecret.Value;
         }
 
         public async Task SendMailAsync(string destinatario, string asunto, string mensaje) {
-            MailMessage mail = ConfigureMailMessage(destinatario, asunto, mensaje);
-            SmtpClient client = ConfigureSmtpClient();
-            await client.SendMailAsync(mail);
-        }
+            var emailModel = new {
+                email = destinatario,
+                asunto = asunto,
+                mensaje = mensaje
+            };
+            using (HttpClient client = new HttpClient()) {
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
 
-        public async Task SendMailAsync(string destinatario, string asunto, string mensaje, string filePath) {
-            MailMessage mail = ConfigureMailMessage(destinatario, asunto, mensaje);
-            Attachment attachment = new Attachment(filePath);
-            mail.Attachments.Add(attachment);
-            SmtpClient client = ConfigureSmtpClient();
-            await client.SendMailAsync(mail);
+                string json = JsonConvert.SerializeObject(emailModel);
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                await client.PostAsync(this.emailscutandgo, content);
+            }
         }
 
         public async Task SendTemplateVerificationEmailAsync(string destinatario, string cliente, string token) {
@@ -71,11 +52,11 @@ namespace Hairdressers_Azure.Helpers {
                         Verificación de cuenta
                     </h2>
                     <p style='font-size: 1em;'>
-                        Estimado/a <strong>{cliente}</strong>, <br>
+                        Estimado/a <strong>{cliente}</strong><br>
 
                         Para poder verificar su correo electrónico en la aplicación Cut&Go, haga clic en el siguiente enlace: <br> <br>
 
-                        <center><a href='{this.local}/User/ValidateEmail?token={token}' style='
+                        <center><a href='{this.cutandgo_website}/User/ValidateEmail?token={token}' style='
                             text-decoration: none;
                             background-color: #415073;
                             color: white;
@@ -91,7 +72,7 @@ namespace Hairdressers_Azure.Helpers {
                         Después de hacer clic en el enlace, serás redirigido a nuestra página web. <br>
                         Una vez allí, puedes iniciar sesión con las credenciales que proporcionaste al registrarte. <br> <br>
 
-                        Si no has creado una cuenta en Cut&Go, puedes ignorar este correo electrónico. <br>
+                        Si no has creado una cuenta en Cut&Go, puedes ignorar este correo electrónico. <br> <br>
                         Si tienes alguna pregunta o problema, no dudes en contactarnos. <br> <br>
 
                         Atentamente, <br>
@@ -156,7 +137,7 @@ namespace Hairdressers_Azure.Helpers {
                     <p>Coste Total: {coste} €</p>
                     <p>Puede confirmar la cita pulsando el botón de más abajo, desde la aplicación o contactando directamente con el usuario</p> <br>
                     <center>
-                        <a href='{this.local}/Appointments/AppointmentConfirm?token={token}&hid={hairdresser_id}&apid={appointment_id}' style='
+                        <a href='{this.cutandgo_website}/Appointments/AppointmentConfirm?token={token}&hid={hairdresser_id}&apid={appointment_id}' style='
                             text-decoration: none;
                             background-color: #415073;
                             color: white;
