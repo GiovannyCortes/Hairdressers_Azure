@@ -22,9 +22,12 @@
                 }
             </p>
             <p>@Context.User.FindFirstValue("PHONE")</p>
-            <a asp-controller="User" asp-action="UpdateUser">
+            <a asp-controller="User" asp-action="UpdateUser" class="cb_section_1_edit_button">
                 Editar
             </a>
+            <button onclick="executeDelete()" class="cb_section_1_delete_button">
+                Eliminar
+            </button>
         </div>
         <div class="cb_section_2" >
             @if (peluquerias != null) {
@@ -45,6 +48,27 @@
 
 @section user_script{
     <script>
+        function executeDelete() {
+            Swal.fire({
+                title: "¿Eliminar el usuario actual?",
+                text: "Esta acción no podrá revertirse. Se eliminará toda la información relacionada con las peluquerías en las que solo sea usted el administrador",
+                icon: 'warning',
+                showCancelButton: true,
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#F41515',
+                confirmButtonText: 'Sí, eliminar información'
+            }).then((result) => {
+                if (result.isConfirmed === true) {
+                    $(".loadingContainer").fadeIn();
+                    let dots = $(".dots");
+                    animate(dots, "dots--animate");
+                    $.post("/User/DeleteUser", function() {
+                        $.post("/Managed/LogOut");
+                    });
+                }
+            });
+        }
+
         function executeValidate() {
             Swal.fire({
                 title: "¿Desea validar su email ahora?",

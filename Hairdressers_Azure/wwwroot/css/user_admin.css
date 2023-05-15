@@ -13,11 +13,11 @@
     border-radius: 110px 25px 25px 110px;
     margin: auto;
     padding: 15px;
-    width: clamp(400px, 60vw, 1080px);
+    width: clamp(400px, 70vw, 1080px);
     overflow: hidden;
     text-align: center;
     display: grid;
-    grid-template-areas: "image cb1" "image cb2";
+    grid-template-areas: "image cb1 cb1" "image cb2 cb2";
     grid-gap: 15px;
     align-items: center;
 }
@@ -39,7 +39,7 @@
 .cb_section_1 {
     display: grid;
     grid-area: cb1;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1.8fr 0.8fr 0.6fr 0.6fr;
     grid-gap: 5px;
     margin-top: 5px;
 }
@@ -53,21 +53,37 @@
     margin-left: 10px;
 }
 
-.cb_section_1 > a {
+.cb_section_1_edit_button, .cb_section_1_delete_button {
     margin: auto;
     padding: 10px 20px;
     cursor: pointer;
     border-radius: 25px;
     text-decoration: none;
-    color: rgb(57, 43, 0);
     background-color: white;
-    border: 1px solid rgb(255, 191, 0);
     transition: 150ms ease-in;
 }
 
-.cb_section_1 > a:hover {
+/* ======== PRIMER BOTÓN (EDITAR) ======== */
+.cb_section_1_edit_button {
+    color: rgb(57, 43, 0);
+    border: 1px solid rgb(255, 191, 0);
+}
+
+.cb_section_1_edit_button:hover {
     background-color: rgb(255, 191, 0);
 }
+/* ======== PRIMER BOTÓN (EDITAR) ======== */
+
+/* ======= SEGUNDO BOTÓN (BORRAR) ======== */
+.cb_section_1_delete_button {
+    color: rgb(57, 43, 0);
+    border: 1px solid rgb(255, 0, 0);
+}
+
+.cb_section_1_delete_button:hover {
+    background-color: rgb(234, 72, 72);
+}
+/* ======= SEGUNDO BOTÓN (BORRAR) ======== */
 
 .cb_section_2 {
     /*margin-top: 15px;*/

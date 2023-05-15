@@ -119,6 +119,11 @@
     object-fit: cover;
     border-radius: 25px;
     margin-block: 5px 15px;
+    background-image: url("../../images/logos/Barber_logo_medium_white.png");
+    background-size: cover;
+    background-position: center center;
+    background-position-y: 5px;
+    background-repeat: no-repeat;
 }
 
 /* CHECKBOX STYLE */

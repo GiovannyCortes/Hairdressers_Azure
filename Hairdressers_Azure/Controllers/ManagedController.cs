@@ -24,12 +24,9 @@ namespace Hairdressers_Azure.Controllers {
             return View();
         }
 
-        private async Task<string> ExtractAndSaveTokenAsync(string email, string password) {
-            // EXTRACCIÓN DEL TOKEN
-            string responseToken = await this.service.LogInAsync(email, password);
+        private async Task<string> ExtractAndSaveTokenAsync(string responseToken) {
             dynamic responseObject = JsonConvert.DeserializeObject(responseToken);
             string token = responseObject.response;
-
             HttpContext.Session.SetString("TOKEN", token);
             return token;
         }
@@ -37,32 +34,39 @@ namespace Hairdressers_Azure.Controllers {
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogIn(string email, string password) {
+            string responseToken = await this.service.LogInAsync(email, password);
 
-            string token = await this.ExtractAndSaveTokenAsync(email, password);
+            if (responseToken != null) {
+                string token = await this.ExtractAndSaveTokenAsync(responseToken);
 
-            // EXTRACCIÓN DEL USUARIO DE DICHO TOKEN
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken parsedToken = tokenHandler.ReadJwtToken(token);
+                // EXTRACCIÓN DEL USUARIO DE DICHO TOKEN
+                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+                JwtSecurityToken parsedToken = tokenHandler.ReadJwtToken(token);
 
-            IEnumerable<Claim> claims = parsedToken.Claims;
-            Claim userDataClaim = claims.FirstOrDefault(c => c.Type == "UserData");
-            User? user = null;
-            if (userDataClaim != null) {
-                string userDataJson = userDataClaim.Value;
-                user = JsonConvert.DeserializeObject<User?>(userDataJson);
-            }
-
-            if (user != null) { // Usuario encontrado, credenciales correctas
-                await SignInUser(user); // Ejecutamos el LogIn del Usuario
-
-                if (user.Image != null && user.Image != "") {
-                    await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones
+                IEnumerable<Claim> claims = parsedToken.Claims;
+                Claim userDataClaim = claims.FirstOrDefault(c => c.Type == "UserData");
+                User? user = null;
+                if (userDataClaim != null) {
+                    string userDataJson = userDataClaim.Value;
+                    user = JsonConvert.DeserializeObject<User?>(userDataJson);
                 }
 
-                string controller = TempData["controller"].ToString();
-                string action = TempData["action"].ToString();
+                if (user != null) { // Usuario encontrado, credenciales correctas
+                    await SignInUser(user); // Ejecutamos el LogIn del Usuario
 
-                return RedirectToAction(action, controller);
+                    if (user.Image != null && user.Image != "") {
+                        await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones
+                    }
+
+                    string controller = TempData["controller"].ToString();
+                    string action = TempData["action"].ToString();
+
+                    return RedirectToAction(action, controller);
+                } else {
+                    ViewData["VERIFICATION"] = "Credenciales incorrectas";
+                    return View();
+                }
+
             } else {
                 ViewData["VERIFICATION"] = "Credenciales incorrectas";
                 return View();
@@ -107,7 +111,8 @@ namespace Hairdressers_Azure.Controllers {
             }
 
             if (user != null) {
-                await this.ExtractAndSaveTokenAsync(Email, Password); // Extracción del Token y almacenamiento en Session
+                string responseToken = await this.service.LogInAsync(Email, Password);
+                await this.ExtractAndSaveTokenAsync(responseToken); // Extracción del Token y almacenamiento en Session
                 await SignInUser(user); // Ejecutamos el LogIn del nuevo Usuario registrado
                 if (file != null) { // No podemos cargar una imagen si no ha registrado una
                     await ChargeImage(user.Image); // Cargamos la imagen del usuario para no sobrecargar el storage a peticiones

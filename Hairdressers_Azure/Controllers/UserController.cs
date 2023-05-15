@@ -4,6 +4,7 @@ using Hairdressers_Azure.Filters;
 using Hairdressers_Azure.Helpers;
 using Hairdressers_Azure.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Azure;
 
 namespace Hairdressers_Azure.Controllers {
     public class UserController : Controller {
@@ -46,6 +47,23 @@ namespace Hairdressers_Azure.Controllers {
             return View();
         }
 
+        [AuthorizeUsers]
+        public async Task<IActionResult> DeleteUser() {
+            int userId = int.Parse(HttpContext.User.FindFirst("ID").Value);
+            string user_image = HttpContext.User.FindFirst("IMAGE").Value;
+            await this.serviceBlob.DeleteBlobAsync("users", user_image); // Eliminamos el antiguo Blob
+
+            List<Hairdresser> hairdressers = await this.service.GetHairdressersByUserAsync(userId);
+            foreach (Hairdresser removeHairdresser in hairdressers) {
+                if (removeHairdresser != null && removeHairdresser.Image != null && removeHairdresser.Image != "") {
+                    await this.serviceBlob.DeleteBlobAsync("hairdressers", removeHairdresser.Image); // Eliminamos el antiguo Blob
+                }
+            }
+
+            await this.service.DeleteUserAsync(userId);
+            return RedirectToAction("LogOut", "Managed");
+        }
+        
         [AuthorizeUsers]
         public async Task<IActionResult> UpdateUser() {
             User? user = await service.FindUserAsync(int.Parse(HttpContext.User.FindFirst("ID").Value));
